@@ -19,9 +19,13 @@ export function StatCard({
   return (
     <Card>
       <CardContent className="p-5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <span className="text-sm font-medium text-ink-600">{label}</span>
-          {Icon && <Icon className="size-5 text-ink-500" aria-hidden />}
+          {Icon && (
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-700">
+              <Icon className="size-[18px]" aria-hidden />
+            </span>
+          )}
         </div>
         <p className="mt-2 text-3xl font-bold tracking-tight text-ink-700">
           {value}
