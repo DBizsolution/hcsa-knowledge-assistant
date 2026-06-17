@@ -78,11 +78,14 @@ export function ChatMessage({
       <BrandMark className="mt-0.5 size-8 shrink-0 rounded-lg" />
       <div className="min-w-0 flex-1 space-y-3">
         {(searching || queries.length > 0) && (
-          <div className="flex flex-wrap items-center gap-2 text-sm text-ink-500">
+          <div
+            className="flex flex-wrap items-center gap-2 text-sm text-ink-500"
+            aria-live="polite"
+          >
             {searching ? (
-              <Loader2 className="size-4 animate-spin text-teal-600" />
+              <Loader2 className="size-4 animate-spin text-teal-600" aria-hidden />
             ) : (
-              <Search className="size-4 text-teal-600" />
+              <Search className="size-4 text-teal-600" aria-hidden />
             )}
             <span>
               {searching ? 'Searching the knowledge base' : 'Searched'}
@@ -99,9 +102,16 @@ export function ChatMessage({
         )}
 
         {showCursor && (
-          <div className="flex items-center gap-2 text-sm text-ink-500">
-            <Sparkles className="size-4 text-teal-600" />
-            <span className="inline-block h-4 w-2 animate-pulse bg-ink-500" />
+          <div
+            className="flex items-center gap-2 text-sm text-ink-500"
+            aria-live="polite"
+          >
+            <Sparkles className="size-4 text-teal-600" aria-hidden />
+            <span
+              className="inline-block h-4 w-2 animate-pulse bg-ink-500"
+              aria-hidden
+            />
+            <span className="sr-only">Generating response</span>
           </div>
         )}
 
@@ -112,13 +122,14 @@ export function ChatMessage({
         {visibleSources.length > 0 && (
           <Collapsible open={sourcesOpen} onOpenChange={setSourcesOpen}>
             <CollapsibleTrigger className="flex items-center gap-2 rounded-md text-sm font-bold text-teal-600 hover:underline">
-              <BookOpen className="size-4" />
+              <BookOpen className="size-4" aria-hidden />
               {visibleSources.length} source{visibleSources.length > 1 ? 's' : ''}
               <ChevronDown
                 className={cn(
                   'size-4 transition-transform',
                   sourcesOpen && 'rotate-180',
                 )}
+                aria-hidden
               />
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-2 space-y-2">

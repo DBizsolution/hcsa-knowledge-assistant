@@ -177,7 +177,7 @@ function TopicGrid({ onSelect }: { onSelect: (category: Category) => void }) {
               )}
             >
               {category.prompts.length} example questions
-              <ArrowUpRight className="size-3.5" />
+              <ArrowUpRight className="size-3.5" aria-hidden />
             </span>
           </span>
         </button>
@@ -204,7 +204,7 @@ function PromptList({
           className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-ink-500 transition hover:bg-muted hover:text-ink-700"
           aria-label="Back to topics"
         >
-          <ArrowLeft className="size-4" />
+          <ArrowLeft className="size-4" aria-hidden />
         </button>
         <span
           className={cn(
@@ -238,7 +238,7 @@ function PromptList({
             <span className="flex-1 text-base leading-relaxed text-ink-700">
               {prompt}
             </span>
-            <ArrowUpRight className="size-4 shrink-0 text-ink-500/60 transition-colors group-hover:text-ink-700" />
+            <ArrowUpRight className="size-4 shrink-0 text-ink-500/60 transition-colors group-hover:text-ink-700" aria-hidden />
           </button>
         ))}
       </div>

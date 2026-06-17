@@ -121,7 +121,11 @@ export default function ConfigurationPage() {
             <CardTitle>System prompt</CardTitle>
           </CardHeader>
           <CardContent>
-            <Textarea rows={4} defaultValue={CONFIG_DEFAULTS.systemPrompt} />
+            <Textarea
+              rows={4}
+              defaultValue={CONFIG_DEFAULTS.systemPrompt}
+              aria-label="System prompt"
+            />
           </CardContent>
         </Card>
 

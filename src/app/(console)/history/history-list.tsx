@@ -24,7 +24,7 @@ export function HistoryList() {
   return (
     <>
       <div className="relative mb-5 max-w-md">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-500" />
+        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-500" aria-hidden />
         <Input
           value={query}
           onChange={(event) => setQuery(event.target.value)}

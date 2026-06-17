@@ -65,6 +65,7 @@ export function ConsoleSidebar() {
                           <Link
                             href={item.href}
                             onClick={() => setOpenMobile(false)}
+                            aria-current={active ? 'page' : undefined}
                           />
                         }
                         isActive={active}
