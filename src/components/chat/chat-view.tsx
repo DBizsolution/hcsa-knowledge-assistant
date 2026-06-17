@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport } from 'ai'
 import { toast } from 'sonner'
-import { Sparkles, ShieldCheck } from 'lucide-react'
+import { ShieldCheck, RotateCw } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import { BrandMark } from '@/components/shell/brand'
 import { ChatMessage } from './chat-message'
 import { ChatComposer } from './chat-composer'
@@ -14,7 +16,8 @@ export function ChatView() {
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const { messages, sendMessage, status, stop, error } = useChat({
+  const { messages, sendMessage, status, stop, error, regenerate, clearError } =
+    useChat({
     transport: new DefaultChatTransport({ api: '/api/chat' }),
     onError: () => {
       toast.error(
@@ -58,9 +61,24 @@ export function ChatView() {
                 />
               ))}
               {error && (
-                <p className="text-sm text-destructive">
-                  Something went wrong generating a response. Please try again.
-                </p>
+                <div className="flex flex-wrap items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+                  <p className="text-sm text-destructive">
+                    Something went wrong generating a response.
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="ml-auto gap-1.5"
+                    onClick={() => {
+                      clearError()
+                      regenerate()
+                    }}
+                  >
+                    <RotateCw className="size-3.5" />
+                    Retry
+                  </Button>
+                </div>
               )}
               <div ref={bottomRef} />
             </div>
@@ -108,16 +126,35 @@ function EmptyState({ onPick }: { onPick: (prompt: string) => void }) {
             key={suggestion.label}
             type="button"
             onClick={() => onPick(suggestion.prompt)}
-            className="group flex flex-col gap-1 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-teal-600 hover:bg-teal-50/40"
+            className={cn(
+              'group flex items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-md',
+              suggestion.hoverClass,
+            )}
           >
-            <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-teal-600">
-              <Sparkles className="size-3.5" />
-              {suggestion.category}
+            <span
+              className={cn(
+                'flex size-10 shrink-0 items-center justify-center rounded-lg transition-transform group-hover:scale-105',
+                suggestion.chipClass,
+              )}
+            >
+              <suggestion.icon className="size-5" />
             </span>
-            <span className="text-base font-medium text-ink-700">
-              {suggestion.label}
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span
+                className={cn(
+                  'text-xs font-bold uppercase tracking-wide',
+                  suggestion.accentClass,
+                )}
+              >
+                {suggestion.category}
+              </span>
+              <span className="text-base font-medium text-ink-700">
+                {suggestion.label}
+              </span>
+              <span className="line-clamp-2 text-sm text-ink-500">
+                {suggestion.prompt}
+              </span>
             </span>
-            <span className="text-sm text-ink-500">{suggestion.prompt}</span>
           </button>
         ))}
       </div>

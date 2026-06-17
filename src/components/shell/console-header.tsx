@@ -7,7 +7,6 @@ import { findNavItem, requiredRankForPath } from '@/lib/nav'
 import { roleRank } from '@/lib/roles'
 import { useRole } from '@/lib/use-role-store'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { UserMenu } from './user-menu'
 import { RoleSwitcher } from './role-switcher'
@@ -28,8 +27,7 @@ export function ConsoleHeader({ email }: { email: string }) {
 
   return (
     <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-2 border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-1 h-6" />
+      <SidebarTrigger className="-ml-1 mr-1" />
       <div className="flex min-w-0 flex-col">
         <h1 className="truncate text-base font-bold text-ink-700">
           {current?.title ?? 'HCSA Knowledge Assistant'}

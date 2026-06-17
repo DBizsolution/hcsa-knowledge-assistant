@@ -21,7 +21,7 @@ export function ChatMessage({
   isStreaming?: boolean
 }) {
   const [highlighted, setHighlighted] = useState<number | null>(null)
-  const [sourcesOpen, setSourcesOpen] = useState(false)
+  const [sourcesOpen, setSourcesOpen] = useState(true)
   const sourceRefs = useRef<Record<number, HTMLDivElement | null>>({})
 
   if (message.role === 'user') {
