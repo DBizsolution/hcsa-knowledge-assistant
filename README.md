@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HCSA Knowledge Assistant — prototype
 
-## Getting Started
+AI-driven LLM knowledge management assistant for the Housing, Construction &
+Sustainability Authority (HCSA / HDB) tender prototype. RAG over the
+unstructured mock corpus (policies, SOPs, emails, financial reports) with
+cited answers.
 
-First, run the development server:
+## Stack
+
+- **Next.js 16** (App Router, `src/`), **React 19**, **TypeScript**
+- **Tailwind v4** + **shadcn/ui** — themed from the reverse-engineered HDB
+  design system in `../styleguide.md` (tweakcn-style CSS variables in
+  `src/app/globals.css`)
+- **Vercel AI SDK v6** — agentic chat with a retrieval tool
+- **Supabase + pgvector** — vector store; **OpenAI** — chat + embeddings
+
+## Annex B pages
+
+| Page | Route | Status |
+| --- | --- | --- |
+| Login | `/login` | **Functional** |
+| Chat | `/chat` | **Functional (RAG + citations)** |
+| Knowledge base | `/knowledge-base` | Hi-fi mock |
+| File upload | `/upload` | Hi-fi mock |
+| Document generation | `/documents` | Hi-fi mock |
+| Conversation history | `/history` | Hi-fi mock |
+| Query testing & evaluation | `/evaluation` | Hi-fi mock |
+| System performance | `/dashboard` | Hi-fi mock |
+| System consumption | `/consumption` | Hi-fi mock |
+| Chatbot configuration | `/configuration` | Hi-fi mock |
+| User management | `/users` | Hi-fi mock |
+| User profile _(optional)_ | `/profile` | Hi-fi mock |
+| User guide _(optional)_ | `/guide` | Hi-fi mock |
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+cp .env.example .env.local   # fill in OpenAI + Supabase credentials
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Database** — run `supabase/schema.sql` in the Supabase SQL editor (enables
+   pgvector, creates `documents` / `chunks` and the `match_chunks` function).
+2. **Auth** — create a user in Supabase Auth (email/password) to sign in.
+3. **Ingest the corpus**:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+   ```bash
+   pnpm ingest --dry-run   # parse + chunk only (no API calls)
+   pnpm ingest             # embed + upsert into Supabase
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. **Run**:
 
-## Learn More
+   ```bash
+   pnpm dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+> Without Supabase configured the app runs in **demo mode** — the login page
+> opens the console directly so the UI can be reviewed without credentials.
+> The chat requires `OPENAI_API_KEY` and an ingested knowledge base.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `pnpm dev` / `pnpm build` / `pnpm start`
+- `pnpm lint` · `pnpm typecheck`
+- `pnpm ingest [--dry-run]` — ingest the mock corpus

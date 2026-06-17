@@ -1,26 +1,206 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   HDB / HCSA design tokens — reverse-engineered from the live
+   HDB homepage (see styleguide.md). Themed tweakcn-style: every
+   colour is a CSS variable; components consume the semantic
+   shadcn slots, never raw hex.
+   ============================================================ */
 
 :root {
+  /* Brand palette */
+  --hdb-red: #c3141e;
+  --hdb-red-hover: #a00a19;
+  --teal-900: #053436;
+  --teal-800: #085054;
+  --teal-600: #0a676d;
+  --teal-50: #eff8fa;
+  --ink: #212529;
+  --ink-700: #343a40;
+  --ink-600: #495057;
+  --ink-500: #6c757d;
+  --line: #dee2e6;
+  --line-soft: #ced4da;
+  --gray-50: #f8f9fa;
+  --gray-100: #f0f0f0;
+  --footer-bg: #21252a;
+  --link-blue: #2f60ce;
+
+  /* Semantic shadcn slots mapped onto the brand palette */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+
+  --primary: var(--hdb-red);
+  --primary-foreground: #ffffff;
+  --secondary: var(--teal-50);
+  --secondary-foreground: var(--teal-900);
+  --muted: var(--gray-50);
+  --muted-foreground: var(--ink-600); /* AA: ~8:1 on white */
+  --accent: var(--teal-50);
+  --accent-foreground: var(--teal-900);
+  --destructive: var(--hdb-red-hover);
+  --destructive-foreground: #ffffff;
+
+  --border: var(--line);
+  --input: var(--line-soft);
+  --ring: var(--teal-600); /* visible, AA-contrast focus ring */
+
+  /* Charts (dashboards) — brand-led, distinguishable */
+  --chart-1: var(--hdb-red);
+  --chart-2: var(--teal-600);
+  --chart-3: var(--teal-800);
+  --chart-4: var(--link-blue);
+  --chart-5: var(--ink-500);
+
+  --radius: 0.75rem; /* 12px base → cards/buttons read like the live site */
+
+  /* Console sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--hdb-red);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--teal-50);
+  --sidebar-accent-foreground: var(--teal-900);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--teal-600);
+}
+
+.dark {
+  /* Dark variant kept conservative — the gov aesthetic is light-first.
+     Provided so shadcn dark utilities never break. */
+  --background: #0d1414;
+  --foreground: #f3f6f6;
+  --card: #102020;
+  --card-foreground: #f3f6f6;
+  --popover: #102020;
+  --popover-foreground: #f3f6f6;
+  --primary: #e8505b;
+  --primary-foreground: #1a0506;
+  --secondary: #14322f;
+  --secondary-foreground: #eaf6f6;
+  --muted: #16302f;
+  --muted-foreground: #aac4c4;
+  --accent: #14322f;
+  --accent-foreground: #eaf6f6;
+  --destructive: #e8505b;
+  --destructive-foreground: #1a0506;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.16);
+  --ring: #4db3bb;
+  --chart-1: #e8505b;
+  --chart-2: #4db3bb;
+  --chart-3: #2f8a90;
+  --chart-4: #6f97e8;
+  --chart-5: #9aa6ad;
+  --sidebar: #102020;
+  --sidebar-foreground: #f3f6f6;
+  --sidebar-primary: #e8505b;
+  --sidebar-primary-foreground: #1a0506;
+  --sidebar-accent: #14322f;
+  --sidebar-accent-foreground: #eaf6f6;
+  --sidebar-border: rgba(255, 255, 255, 0.12);
+  --sidebar-ring: #4db3bb;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Direct brand utilities (bg-hdb-red, text-teal-600, …) */
+  --color-hdb-red: var(--hdb-red);
+  --color-hdb-red-hover: var(--hdb-red-hover);
+  --color-teal-900: var(--teal-900);
+  --color-teal-800: var(--teal-800);
+  --color-teal-600: var(--teal-600);
+  --color-teal-50: var(--teal-50);
+  --color-ink: var(--ink);
+  --color-ink-700: var(--ink-700);
+  --color-ink-600: var(--ink-600);
+  --color-ink-500: var(--ink-500);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-gray-50: var(--gray-50);
+  --color-gray-100: var(--gray-100);
+  --color-footer-bg: var(--footer-bg);
+  --color-link-blue: var(--link-blue);
+
+  --font-sans: var(--font-hanken), "Hanken Grotesk", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-heading: var(--font-sans);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Accessibility floor: never render text below 14px, even via text-xs */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.25rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 1.125rem; /* 18px body, per styleguide */
+    line-height: 1.75rem;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Strong, always-visible keyboard focus (a11y) */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* 1140px centred container with 16px gutters — matches the live site */
+  .app-container {
+    width: 100%;
+    max-width: 1140px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
 }
