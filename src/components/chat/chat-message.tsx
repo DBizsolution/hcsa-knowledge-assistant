@@ -25,6 +25,17 @@ function citedRefs(text: string): Set<number> {
   return refs
 }
 
+/** Rewrite [n] / [n, m] markers using a renumbering map; drop unmapped refs. */
+function remapCitations(text: string, map: Map<number, number>): string {
+  return text.replace(/\[(\d+(?:\s*,\s*\d+)*)\]/g, (_full, inner: string) => {
+    const mapped = inner
+      .split(',')
+      .map((value) => map.get(parseInt(value.trim(), 10)))
+      .filter((value): value is number => value != null)
+    return mapped.length ? `[${mapped.join(', ')}]` : ''
+  })
+}
+
 export function ChatMessage({
   message,
   isStreaming,
@@ -60,6 +71,16 @@ export function ChatMessage({
   const visibleSources = cited.size
     ? sources.filter((source) => cited.has(source.ref))
     : sources
+  // Renumber the shown sources 1..N (and the answer's [n] markers to match) so
+  // citations read sequentially instead of exposing raw retrieval indices.
+  const renumber = new Map(
+    visibleSources.map((source, index) => [source.ref, index + 1]),
+  )
+  const displaySources = visibleSources.map((source, index) => ({
+    ...source,
+    ref: index + 1,
+  }))
+  const displayText = remapCitations(text, renumber)
 
   function handleCitation(ref: number) {
     setSourcesOpen(true)
@@ -115,15 +136,15 @@ export function ChatMessage({
           </div>
         )}
 
-        {text && (
-          <Markdown content={text} onCitation={handleCitation} />
+        {displayText && (
+          <Markdown content={displayText} onCitation={handleCitation} />
         )}
 
-        {visibleSources.length > 0 && (
+        {displaySources.length > 0 && (
           <Collapsible open={sourcesOpen} onOpenChange={setSourcesOpen}>
             <CollapsibleTrigger className="flex items-center gap-2 rounded-md text-sm font-bold text-teal-600 hover:underline">
               <BookOpen className="size-4" aria-hidden />
-              {visibleSources.length} source{visibleSources.length > 1 ? 's' : ''}
+              {displaySources.length} source{displaySources.length > 1 ? 's' : ''}
               <ChevronDown
                 className={cn(
                   'size-4 transition-transform',
@@ -133,7 +154,7 @@ export function ChatMessage({
               />
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-2 space-y-2">
-              {visibleSources.map((source) => (
+              {displaySources.map((source) => (
                 <SourceCard
                   key={source.ref}
                   source={source}
