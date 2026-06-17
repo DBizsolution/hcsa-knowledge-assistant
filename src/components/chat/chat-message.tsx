@@ -1,8 +1,9 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Search, Loader2, Sparkles, BookOpen } from 'lucide-react'
+import { Search, Loader2, Sparkles, BookOpen, ChevronDown } from 'lucide-react'
 import type { UIMessage } from 'ai'
+import { cn } from '@/lib/utils'
 import { BrandMark } from '@/components/shell/brand'
 import {
   Collapsible,
@@ -13,6 +14,17 @@ import { Markdown } from './markdown'
 import { SourceCard } from './source-card'
 import { extractMessageMeta } from './types'
 
+/** Collect the source numbers referenced by [n] / [n, m] markers in the answer. */
+function citedRefs(text: string): Set<number> {
+  const refs = new Set<number>()
+  const pattern = /\[(\d+(?:\s*,\s*\d+)*)\]/g
+  let match: RegExpExecArray | null
+  while ((match = pattern.exec(text))) {
+    match[1].split(',').forEach((value) => refs.add(parseInt(value.trim(), 10)))
+  }
+  return refs
+}
+
 export function ChatMessage({
   message,
   isStreaming,
@@ -21,7 +33,7 @@ export function ChatMessage({
   isStreaming?: boolean
 }) {
   const [highlighted, setHighlighted] = useState<number | null>(null)
-  const [sourcesOpen, setSourcesOpen] = useState(true)
+  const [sourcesOpen, setSourcesOpen] = useState(false)
   const sourceRefs = useRef<Record<number, HTMLDivElement | null>>({})
 
   if (message.role === 'user') {
@@ -41,6 +53,14 @@ export function ChatMessage({
   const { text, sources, searching, queries } = extractMessageMeta(message)
   const showCursor = isStreaming && text.length === 0 && !searching
 
+  // The model retrieves more chunks than it cites. Show only the sources the
+  // answer actually references (matching [n] markers), so the count is honest;
+  // fall back to all retrieved sources if the answer cited none.
+  const cited = citedRefs(text)
+  const visibleSources = cited.size
+    ? sources.filter((source) => cited.has(source.ref))
+    : sources
+
   function handleCitation(ref: number) {
     setSourcesOpen(true)
     setHighlighted(ref)
@@ -55,9 +75,7 @@ export function ChatMessage({
 
   return (
     <div className="flex gap-3">
-      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-card">
-        <BrandMark className="size-5" />
-      </span>
+      <BrandMark className="mt-0.5 size-8 shrink-0 rounded-lg" />
       <div className="min-w-0 flex-1 space-y-3">
         {(searching || queries.length > 0) && (
           <div className="flex flex-wrap items-center gap-2 text-sm text-ink-500">
@@ -91,17 +109,20 @@ export function ChatMessage({
           <Markdown content={text} onCitation={handleCitation} />
         )}
 
-        {sources.length > 0 && (
+        {visibleSources.length > 0 && (
           <Collapsible open={sourcesOpen} onOpenChange={setSourcesOpen}>
             <CollapsibleTrigger className="flex items-center gap-2 rounded-md text-sm font-bold text-teal-600 hover:underline">
               <BookOpen className="size-4" />
-              {sources.length} source{sources.length > 1 ? 's' : ''}
-              <span className="text-xs font-normal text-ink-500">
-                {sourcesOpen ? 'Hide' : 'Show'}
-              </span>
+              {visibleSources.length} source{visibleSources.length > 1 ? 's' : ''}
+              <ChevronDown
+                className={cn(
+                  'size-4 transition-transform',
+                  sourcesOpen && 'rotate-180',
+                )}
+              />
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-2 space-y-2">
-              {sources.map((source) => (
+              {visibleSources.map((source) => (
                 <SourceCard
                   key={source.ref}
                   source={source}

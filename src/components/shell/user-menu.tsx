@@ -59,29 +59,44 @@ export function UserMenu({ email }: { email: string }) {
         </Avatar>
         <span className="hidden text-sm font-medium sm:inline">{email}</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-64 p-2">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="truncate font-normal">
-            <span className="block text-sm text-muted-foreground">
+          <DropdownMenuLabel className="truncate px-2 py-1.5 font-normal">
+            <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Signed in as
             </span>
-            <span className="block truncate font-medium">{email}</span>
+            <span className="mt-1 block truncate text-sm font-semibold text-ink-700">
+              {email}
+            </span>
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href="/profile" />} nativeButton={false}>
-          <User className="size-4" />
-          Profile
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link href="/guide" />} nativeButton={false}>
-          <BookText className="size-4" />
-          User guide
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={handleSignOut}>
-          <LogOut className="size-4" />
-          Sign out
-        </DropdownMenuItem>
+        <div className="flex flex-col gap-0.5 pt-1">
+          <DropdownMenuItem
+            render={<Link href="/profile" />}
+            nativeButton={false}
+            className="gap-2.5 rounded-lg px-2.5 py-2 font-medium text-ink-700"
+          >
+            <User className="size-4" />
+            Profile
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            render={<Link href="/guide" />}
+            nativeButton={false}
+            className="gap-2.5 rounded-lg px-2.5 py-2 font-medium text-ink-700"
+          >
+            <BookText className="size-4" />
+            User guide
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={handleSignOut}
+            className="gap-2.5 rounded-lg px-2.5 py-2 font-medium text-hdb-red focus:bg-[color-mix(in_oklch,var(--hdb-red),white_90%)] focus:text-hdb-red"
+          >
+            <LogOut className="size-4" />
+            Sign out
+          </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   )

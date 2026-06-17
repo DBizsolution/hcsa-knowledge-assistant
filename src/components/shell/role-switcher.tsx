@@ -1,6 +1,7 @@
 'use client'
 
 import { Eye, Check, ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { ROLES, roleLabel } from '@/lib/roles'
 import { useRole } from '@/lib/use-role-store'
 import { Button } from '@/components/ui/button'
@@ -34,31 +35,59 @@ export function RoleSwitcher() {
         <span className="font-bold text-ink-700">{roleLabel(role)}</span>
         <ChevronDown className="size-4 opacity-60" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72">
+      <DropdownMenuContent align="end" className="w-80 p-2">
         <DropdownMenuGroup>
-          <DropdownMenuLabel className="flex items-center justify-between font-normal">
-            <span className="text-sm text-muted-foreground">View the app as</span>
+          <DropdownMenuLabel className="flex items-center justify-between px-2 py-1.5 font-normal">
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              View the app as
+            </span>
             <Badge variant="outline" className="text-xs text-ink-500">
               Demo
             </Badge>
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        {ROLES.map((option) => (
-          <DropdownMenuItem
-            key={option.id}
-            onClick={() => setRole(option.id)}
-            className="flex-col items-start gap-0.5 py-2"
-          >
-            <span className="flex w-full items-center gap-2">
-              <span className="font-medium text-ink-700">{option.label}</span>
-              {role === option.id && (
-                <Check className="ml-auto size-4 text-teal-600" />
-              )}
-            </span>
-            <span className="text-xs text-ink-500">{option.blurb}</span>
-          </DropdownMenuItem>
-        ))}
+        <div className="flex flex-col gap-1 pt-1">
+          {ROLES.map((option) => {
+            const selected = role === option.id
+            return (
+              <DropdownMenuItem
+                key={option.id}
+                onClick={() => setRole(option.id)}
+                className={cn(
+                  'flex items-start gap-3 rounded-lg px-2.5 py-3',
+                  selected && 'bg-teal-50 focus:bg-teal-50',
+                )}
+              >
+                <span
+                  className={cn(
+                    'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors',
+                    selected
+                      ? 'border-teal-600 bg-teal-600 text-white'
+                      : 'border-ink-300 text-transparent',
+                  )}
+                >
+                  <Check className="size-3.5" strokeWidth={3} />
+                </span>
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span
+                    className={cn(
+                      'text-sm leading-none',
+                      selected
+                        ? 'font-bold text-teal-800'
+                        : 'font-semibold text-ink-700',
+                    )}
+                  >
+                    {option.label}
+                  </span>
+                  <span className="text-xs leading-snug text-ink-500">
+                    {option.blurb}
+                  </span>
+                </span>
+              </DropdownMenuItem>
+            )
+          })}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   )

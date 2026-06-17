@@ -46,17 +46,16 @@ function renderInline(
     if (citation) {
       const refs = citation[1].split(',').map((n) => parseInt(n.trim(), 10))
       nodes.push(
-        <span key={key} className="inline-flex gap-0.5 align-baseline">
-          {refs.map((ref, refIndex) => (
+        <span key={key} className="ml-0.5 inline-flex gap-0.5 align-middle">
+          {refs.map((ref) => (
             <button
               key={`${key}-${ref}`}
               type="button"
               onClick={() => onCitation?.(ref)}
-              className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded bg-teal-50 px-1 text-xs font-bold text-teal-800 align-super leading-none transition-colors hover:bg-teal-600 hover:text-white"
+              className="inline-flex size-4 items-center justify-center rounded-full bg-teal-50 text-[11px] font-semibold leading-none text-teal-700 transition-colors hover:bg-teal-600 hover:text-white"
               aria-label={`Show source ${ref}`}
             >
               {ref}
-              {refIndex < refs.length - 1 ? '' : ''}
             </button>
           ))}
         </span>,

@@ -3,10 +3,8 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Search, MessageSquare, ArrowRight, SearchX } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { CONVERSATIONS, type Conversation } from '@/data/mock'
 
 export function HistoryList() {
@@ -51,37 +49,31 @@ export function HistoryList() {
 
 function ConversationRow({ conversation }: { conversation: Conversation }) {
   return (
-    <Card className="transition hover:border-line-soft hover:shadow-md focus-within:shadow-md motion-safe:hover:-translate-y-0.5">
-      <CardContent className="flex items-center gap-4 p-4">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-700">
-          <MessageSquare className="size-5" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="truncate font-bold text-ink-700">{conversation.title}</h3>
-            <Badge variant="secondary" className="bg-muted text-xs text-ink-600">
-              {conversation.source}
-            </Badge>
-          </div>
-          <p className="mt-0.5 truncate text-sm text-ink-500">
-            {conversation.preview}
-          </p>
+    <Link
+      href="/chat"
+      aria-label={`Open ${conversation.title}`}
+      className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 no-underline transition hover:border-teal-600 hover:bg-teal-50/50 hover:shadow-md hover:no-underline motion-safe:hover:-translate-y-0.5"
+    >
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-700">
+        <MessageSquare className="size-5" />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="truncate font-bold text-ink-700">{conversation.title}</h3>
+          <Badge variant="secondary" className="bg-muted text-xs text-ink-600">
+            {conversation.source}
+          </Badge>
         </div>
-        <div className="hidden shrink-0 flex-col items-end gap-1 text-sm text-ink-500 sm:flex">
-          <span>{conversation.date}</span>
-          <span>{conversation.messages} messages</span>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label={`Open ${conversation.title}`}
-          render={<Link href="/chat" />}
-          nativeButton={false}
-        >
-          <ArrowRight className="size-5" />
-        </Button>
-      </CardContent>
-    </Card>
+        <p className="mt-0.5 truncate text-sm text-ink-500">
+          {conversation.preview}
+        </p>
+      </div>
+      <div className="hidden shrink-0 flex-col items-end gap-1 text-sm text-ink-500 sm:flex">
+        <span>{conversation.date}</span>
+        <span>{conversation.messages} messages</span>
+      </div>
+      <ArrowRight className="size-5 shrink-0 text-ink-500 transition-colors group-hover:text-teal-700" />
+    </Link>
   )
 }
 

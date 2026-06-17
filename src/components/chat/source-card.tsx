@@ -1,7 +1,7 @@
 'use client'
 
-import { forwardRef } from 'react'
-import { FileText, Mail, Scale, FileBarChart } from 'lucide-react'
+import { forwardRef, useState } from 'react'
+import { FileText, Mail, Scale, FileBarChart, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import type { ChatSource } from './types'
@@ -13,47 +13,74 @@ const ICONS: Record<string, typeof FileText> = {
   report: FileBarChart,
 }
 
+/** Strip angle-bracket tokens (<addr>, <mailto:…>) and email header lines. */
+function formatContent(raw: string, type: string) {
+  let text = raw.replace(/<[^>]+>/g, ' ')
+  if (type === 'email') {
+    text = text.replace(
+      /^\s*(from|to|cc|bcc|subject|date|sent|reply-to|importance)\s*:.*$/gim,
+      ' ',
+    )
+  }
+  return text.replace(/\s+/g, ' ').trim()
+}
+
 export const SourceCard = forwardRef<
   HTMLDivElement,
   { source: ChatSource; highlighted?: boolean }
 >(function SourceCard({ source, highlighted }, ref) {
+  const [open, setOpen] = useState(false)
+  const expanded = open || Boolean(highlighted)
   const Icon = ICONS[source.sourceType] ?? FileText
+  const content = formatContent(source.content, source.sourceType)
+
   return (
     <div
       ref={ref}
       className={cn(
-        'scroll-mt-24 rounded-lg border border-border bg-card p-3 transition-colors',
+        'scroll-mt-24 overflow-hidden rounded-lg border border-border bg-card transition-colors',
         highlighted && 'border-teal-600 ring-2 ring-teal-600/30',
       )}
     >
-      <div className="flex items-start gap-2.5">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-teal-50 text-xs font-bold text-teal-800">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={expanded}
+        className="flex w-full items-center gap-2.5 px-2.5 py-2 text-left transition-colors hover:bg-muted/50"
+      >
+        <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-teal-50 text-xs font-bold text-teal-800">
           {source.ref}
         </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <Icon className="size-4 shrink-0 text-ink-500" aria-hidden />
-            <span className="truncate text-sm font-bold text-ink-700">
-              {source.documentTitle}
-            </span>
-            <Badge
-              variant="secondary"
-              className="bg-muted text-xs font-medium text-ink-600"
-            >
-              {source.sourceLabel}
-            </Badge>
-            <span className="ml-auto text-xs text-ink-500">
-              {Math.round(source.similarity * 100)}% match
-            </span>
-          </div>
-          <p className="mt-1.5 line-clamp-3 text-sm leading-6 text-ink-600">
-            {source.content}
-          </p>
-          <p className="mt-1 text-xs text-ink-500">
+        <Icon className="size-4 shrink-0 text-ink-500" aria-hidden />
+        <span className="min-w-0 flex-1 truncate text-sm font-medium text-ink-700">
+          {source.documentTitle}
+        </span>
+        <Badge
+          variant="secondary"
+          className="hidden shrink-0 bg-muted text-xs font-medium text-ink-600 sm:inline-flex"
+        >
+          {source.sourceLabel}
+        </Badge>
+        <span className="shrink-0 text-xs tabular-nums text-ink-500">
+          {Math.round(source.similarity * 100)}%
+        </span>
+        <ChevronDown
+          className={cn(
+            'size-4 shrink-0 text-ink-500 transition-transform',
+            expanded && 'rotate-180',
+          )}
+          aria-hidden
+        />
+      </button>
+
+      {expanded && (
+        <div className="border-t border-border px-2.5 py-2.5">
+          <p className="text-sm leading-6 text-ink-600">{content}</p>
+          <p className="mt-1.5 text-xs text-ink-500">
             {source.sourcePath} · passage {source.chunkIndex + 1}
           </p>
         </div>
-      </div>
+      )}
     </div>
   )
 })

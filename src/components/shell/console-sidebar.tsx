@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Plus, ShieldCheck } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { navGroups } from '@/lib/nav'
 import { roleRank } from '@/lib/roles'
 import { useRole } from '@/lib/use-role-store'
@@ -45,12 +46,14 @@ export function ConsoleSidebar() {
         </Button>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-2 py-2">
         {visibleGroups.map((group) => (
-          <SidebarGroup key={group.label}>
-            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+          <SidebarGroup key={group.label} className="px-1 py-1">
+            <SidebarGroupLabel className="px-2 text-xs font-semibold uppercase tracking-wide text-ink-500">
+              {group.label}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className="gap-0.5">
                 {group.items.map((item) => {
                   const active =
                     pathname === item.href ||
@@ -66,13 +69,21 @@ export function ConsoleSidebar() {
                         }
                         isActive={active}
                         tooltip={item.description}
+                        className={cn(
+                          'h-9 gap-2.5 rounded-none border-l-[3px] border-transparent px-3 font-medium text-ink-600 transition-colors',
+                          'hover:bg-teal-50/70 hover:text-teal-900',
+                          'data-active:border-teal-700 data-active:bg-teal-50 data-active:font-semibold data-active:text-teal-900',
+                        )}
                       >
                         <item.icon />
                         <span>{item.title}</span>
                         {item.functional && (
                           <Badge
                             variant="secondary"
-                            className="ml-auto bg-teal-50 text-xs text-teal-800"
+                            className={cn(
+                              'ml-auto gap-1 border-teal-200 bg-teal-50 px-1.5 text-[0.6875rem] font-semibold text-teal-700',
+                              'before:size-1.5 before:rounded-full before:bg-teal-500 before:content-[""]',
+                            )}
                           >
                             Live
                           </Badge>
@@ -88,8 +99,8 @@ export function ConsoleSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="px-3 py-4">
-        <div className="flex items-center gap-2 rounded-md bg-teal-50 px-3 py-2 text-sm text-teal-800">
-          <ShieldCheck className="size-4 shrink-0" />
+        <div className="flex items-start gap-2.5 rounded-lg border border-teal-100 bg-teal-50 px-3 py-2.5 text-xs leading-snug text-teal-800">
+          <ShieldCheck className="size-4 shrink-0 text-teal-600" />
           <span>Answers are grounded in HCSA sources only.</span>
         </div>
       </SidebarFooter>

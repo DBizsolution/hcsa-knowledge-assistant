@@ -193,6 +193,12 @@
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-ring;
   }
+  /* Text links underline on hover. Excludes anchors styled as buttons or
+     menu items (these carry a data-slot from the UI primitives). */
+  a:not([data-slot]):hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
 }
 
 @layer components {
