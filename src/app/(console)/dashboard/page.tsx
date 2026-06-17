@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import { Activity, Gauge, MessageSquare, Timer } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
+import { Activity, MessageSquare, Timer, TrendingUp } from 'lucide-react'
 import { PageContainer, PageHeader } from '@/components/shell/page'
-import { StatCard } from '@/components/shell/stat-card'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   BarChart,
@@ -34,12 +34,31 @@ export default function DashboardPage() {
         mock
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Accuracy" value={`${Math.round(METRICS.accuracy * 100)}%`} icon={Gauge} trend={{ direction: 'up', value: '+4%', good: true }} hint="vs last week" />
-        <StatCard label="Faithfulness" value={`${Math.round(METRICS.faithfulness * 100)}%`} icon={Activity} trend={{ direction: 'up', value: '+1%', good: true }} hint="grounded claims" />
-        <StatCard label="Avg latency" value={`${(METRICS.avgLatencyMs / 1000).toFixed(1)}s`} icon={Timer} trend={{ direction: 'down', value: '-0.3s', good: true }} hint="end-to-end" />
-        <StatCard label="Queries / week" value="1,003" icon={MessageSquare} trend={{ direction: 'up', value: '+12%', good: true }} hint="across 39 users" />
-      </div>
+      <Card>
+        <CardContent className="flex flex-col gap-6 p-6 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
+          <div className="lg:max-w-md">
+            <p className="text-sm font-medium text-ink-600">Retrieval accuracy</p>
+            <div className="mt-2 flex items-end gap-3">
+              <span className="text-6xl font-bold leading-none tracking-tight text-ink-700">
+                {Math.round(METRICS.accuracy * 100)}%
+              </span>
+              <span className="mb-1 inline-flex items-center gap-1 text-sm font-medium text-teal-600">
+                <TrendingUp className="size-4" />
+                +4% vs last week
+              </span>
+            </div>
+            <p className="mt-3 text-sm text-ink-500">
+              Share of evaluation queries answered correctly and grounded in the
+              right HCSA source, across the Annex A test set.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-5 border-t border-border pt-6 sm:grid-cols-3 lg:shrink-0 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+            <HeroStat icon={Activity} label="Faithfulness" value={`${Math.round(METRICS.faithfulness * 100)}%`} hint="grounded claims" />
+            <HeroStat icon={Timer} label="Avg latency" value={`${(METRICS.avgLatencyMs / 1000).toFixed(1)}s`} hint="end-to-end" />
+            <HeroStat icon={MessageSquare} label="Queries / week" value="1,003" hint="39 users" />
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -92,5 +111,30 @@ export default function DashboardPage() {
         </Card>
       </div>
     </PageContainer>
+  )
+}
+
+function HeroStat({
+  icon: Icon,
+  label,
+  value,
+  hint,
+}: {
+  icon: LucideIcon
+  label: string
+  value: string
+  hint: string
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-2">
+        <Icon className="size-4 text-ink-500" aria-hidden />
+        <span className="text-sm font-medium text-ink-600">{label}</span>
+      </div>
+      <p className="mt-1 text-2xl font-bold tracking-tight text-ink-700">
+        {value}
+      </p>
+      <p className="text-xs text-ink-500">{hint}</p>
+    </div>
   )
 }

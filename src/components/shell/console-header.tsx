@@ -2,14 +2,14 @@
 
 import { useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { Bell } from 'lucide-react'
+import { toast } from 'sonner'
 import { findNavItem, requiredRankForPath } from '@/lib/nav'
-import { roleRank } from '@/lib/roles'
+import { roleLabel, roleRank } from '@/lib/roles'
 import { useRole } from '@/lib/use-role-store'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { Button } from '@/components/ui/button'
 import { UserMenu } from './user-menu'
 import { RoleSwitcher } from './role-switcher'
+import { NotificationsMenu } from './notifications-menu'
 
 export function ConsoleHeader({ email }: { email: string }) {
   const pathname = usePathname()
@@ -21,6 +21,10 @@ export function ConsoleHeader({ email }: { email: string }) {
   // (e.g. switched down to Officer while on an admin page), return to Chat.
   useEffect(() => {
     if (requiredRankForPath(pathname) > roleRank(role)) {
+      const blocked = findNavItem(pathname)
+      toast.info(
+        `The ${roleLabel(role)} role can’t access ${blocked?.title ?? 'that page'} — returned to Chat.`,
+      )
       router.replace('/chat')
     }
   }, [pathname, role, router])
@@ -40,14 +44,7 @@ export function ConsoleHeader({ email }: { email: string }) {
       </div>
       <div className="ml-auto flex items-center gap-1">
         <RoleSwitcher />
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Notifications"
-          className="text-ink-600"
-        >
-          <Bell className="size-5" />
-        </Button>
+        <NotificationsMenu />
         <UserMenu email={email} />
       </div>
     </header>

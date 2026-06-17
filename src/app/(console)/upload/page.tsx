@@ -9,6 +9,7 @@ import {
   Scale,
 } from 'lucide-react'
 import { PageContainer, PageHeader } from '@/components/shell/page'
+import { DocumentPreview } from '@/components/shell/document-preview'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -62,29 +63,49 @@ export default function UploadPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {RECENT.map((file) => (
-                <div key={file.name} className="flex items-center gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-ink-600">
-                    <file.icon className="size-5" />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-sm font-medium text-ink-700">
-                        {file.name}
+                <DocumentPreview
+                  key={file.name}
+                  doc={{
+                    title: file.name,
+                    type: file.type.toLowerCase(),
+                    meta: [
+                      { label: 'Type', value: file.type },
+                      { label: 'Size', value: file.size },
+                      {
+                        label: 'Status',
+                        value: file.state === 'done' ? 'Indexed' : 'Processing',
+                      },
+                    ],
+                  }}
+                  trigger={
+                    <button
+                      type="button"
+                      className="-mx-2 flex w-full items-center gap-3 rounded-lg p-2 text-left transition hover:bg-muted"
+                    >
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-ink-600">
+                        <file.icon className="size-5" />
                       </span>
-                      <span className="shrink-0 text-xs text-ink-500">
-                        {file.size}
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center justify-between gap-2">
+                          <span className="truncate text-sm font-medium text-ink-700">
+                            {file.name}
+                          </span>
+                          <span className="shrink-0 text-xs text-ink-500">
+                            {file.size}
+                          </span>
+                        </span>
+                        <span className="mt-1.5 flex items-center gap-2">
+                          <Progress value={file.progress} className="h-1.5" />
+                          {file.state === 'done' ? (
+                            <CheckCircle2 className="size-4 shrink-0 text-teal-600" />
+                          ) : (
+                            <Loader2 className="size-4 shrink-0 animate-spin text-link-blue" />
+                          )}
+                        </span>
                       </span>
-                    </div>
-                    <div className="mt-1.5 flex items-center gap-2">
-                      <Progress value={file.progress} className="h-1.5" />
-                      {file.state === 'done' ? (
-                        <CheckCircle2 className="size-4 shrink-0 text-teal-600" />
-                      ) : (
-                        <Loader2 className="size-4 shrink-0 animate-spin text-link-blue" />
-                      )}
-                    </div>
-                  </div>
-                </div>
+                    </button>
+                  }
+                />
               ))}
             </CardContent>
           </Card>

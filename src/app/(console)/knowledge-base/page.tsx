@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
-import { Database, FileStack, Layers, RefreshCw, Plus } from 'lucide-react'
+import { Database, FileStack, Layers, RefreshCw, Plus, Eye } from 'lucide-react'
 import { PageContainer, PageHeader } from '@/components/shell/page'
 import { StatCard } from '@/components/shell/stat-card'
 import { TypeBadge } from '@/components/shell/type-badge'
+import { DocumentPreview } from '@/components/shell/document-preview'
 import { DonutChart } from '@/components/charts/mini-charts'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -27,7 +28,7 @@ const STATUS_BADGE: Record<string, string> = {
 
 export default function KnowledgeBasePage() {
   return (
-    <PageContainer>
+    <PageContainer size="wide">
       <PageHeader
         title="Knowledge base"
         description="Manage the indexed sources, chunks and embeddings that ground every answer."
@@ -79,6 +80,9 @@ export default function KnowledgeBasePage() {
                   <TableHead className="text-right">Chunks</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Updated</TableHead>
+                  <TableHead className="w-0">
+                    <span className="sr-only">Preview</span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -105,6 +109,30 @@ export default function KnowledgeBasePage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-ink-500">{doc.updated}</TableCell>
+                    <TableCell className="text-right">
+                      <DocumentPreview
+                        doc={{
+                          title: doc.title,
+                          type: doc.type,
+                          subtitle: doc.collection,
+                          meta: [
+                            { label: 'Pages', value: String(doc.pages) },
+                            { label: 'Chunks', value: String(doc.chunks) },
+                            { label: 'Status', value: doc.status },
+                            { label: 'Updated', value: doc.updated },
+                          ],
+                        }}
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={`Preview ${doc.title}`}
+                          >
+                            <Eye className="size-4" />
+                          </Button>
+                        }
+                      />
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -51,7 +51,7 @@ export function HistoryList() {
 
 function ConversationRow({ conversation }: { conversation: Conversation }) {
   return (
-    <Card className="transition-colors hover:border-line-soft">
+    <Card className="transition hover:border-line-soft hover:shadow-md focus-within:shadow-md motion-safe:hover:-translate-y-0.5">
       <CardContent className="flex items-center gap-4 p-4">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-700">
           <MessageSquare className="size-5" />

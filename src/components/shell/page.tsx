@@ -3,13 +3,21 @@ import { Badge } from '@/components/ui/badge'
 
 export function PageContainer({
   className,
+  size = 'default',
   children,
 }: {
   className?: string
+  size?: 'default' | 'wide'
   children: React.ReactNode
 }) {
   return (
-    <div className={cn('mx-auto w-full max-w-6xl px-4 py-6 md:px-8 md:py-8', className)}>
+    <div
+      className={cn(
+        'mx-auto w-full px-4 py-6 md:px-8 md:py-8',
+        size === 'wide' ? 'max-w-[90rem]' : 'max-w-6xl',
+        className,
+      )}
+    >
       {children}
     </div>
   )

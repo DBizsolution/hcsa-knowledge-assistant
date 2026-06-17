@@ -34,7 +34,7 @@ function initials(name: string) {
 
 export default function UsersPage() {
   return (
-    <PageContainer>
+    <PageContainer size="wide">
       <PageHeader
         title="User management"
         description="Manage officers, roles and access to the knowledge assistant."

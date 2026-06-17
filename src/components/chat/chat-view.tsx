@@ -120,38 +120,38 @@ function EmptyState({ onPick }: { onPick: (prompt: string) => void }) {
         correspondence and reports — with citations.
       </p>
 
-      <div className="mt-8 grid w-full gap-3 sm:grid-cols-2">
+      <div className="mt-10 grid w-full gap-4 sm:grid-cols-2">
         {SUGGESTIONS.map((suggestion) => (
           <button
             key={suggestion.label}
             type="button"
             onClick={() => onPick(suggestion.prompt)}
             className={cn(
-              'group flex items-start gap-3 rounded-xl border border-border bg-card p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-md',
+              'group flex items-start gap-4 rounded-xl border border-border bg-card p-6 text-left transition hover:shadow-md motion-safe:hover:-translate-y-0.5',
               suggestion.hoverClass,
             )}
           >
             <span
               className={cn(
-                'flex size-10 shrink-0 items-center justify-center rounded-lg transition-transform group-hover:scale-105',
+                'flex size-11 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-105',
                 suggestion.chipClass,
               )}
             >
               <suggestion.icon className="size-5" />
             </span>
-            <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="flex min-w-0 flex-col">
               <span
                 className={cn(
-                  'text-xs font-bold uppercase tracking-wide',
+                  'text-xs font-bold uppercase tracking-wider',
                   suggestion.accentClass,
                 )}
               >
                 {suggestion.category}
               </span>
-              <span className="text-base font-medium text-ink-700">
+              <span className="mt-2 text-base font-semibold leading-snug text-ink-700">
                 {suggestion.label}
               </span>
-              <span className="line-clamp-2 text-sm text-ink-500">
+              <span className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-500">
                 {suggestion.prompt}
               </span>
             </span>

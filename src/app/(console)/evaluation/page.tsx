@@ -31,7 +31,7 @@ const STATUS_META = {
 
 export default function EvaluationPage() {
   return (
-    <PageContainer>
+    <PageContainer size="wide">
       <PageHeader
         title="Automated query testing"
         description="Run the benchmark query set and evaluate responses against expected answers using the Annex A metrics."
