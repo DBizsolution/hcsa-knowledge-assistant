@@ -32,8 +32,10 @@ export function RoleSwitcher() {
       >
         <Eye className="size-4" />
         <span className="hidden sm:inline">Viewing as</span>
-        <span className="font-bold text-ink-700">{roleLabel(role)}</span>
-        <ChevronDown className="size-4 opacity-60" />
+        <span className="hidden font-bold text-ink-700 sm:inline">
+          {roleLabel(role)}
+        </span>
+        <ChevronDown className="hidden size-4 opacity-60 sm:block" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 p-2">
         <DropdownMenuGroup>

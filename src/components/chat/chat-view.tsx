@@ -146,19 +146,19 @@ function TopicGrid({ onSelect }: { onSelect: (category: Category) => void }) {
           type="button"
           onClick={() => onSelect(category)}
           className={cn(
-            'group flex items-start gap-4 rounded-xl border border-border bg-card p-6 text-left transition hover:shadow-md motion-safe:hover:-translate-y-0.5',
+            'group flex items-center gap-3 rounded-xl border border-border bg-card p-4 text-left transition hover:shadow-md motion-safe:hover:-translate-y-0.5',
             category.hoverClass,
           )}
         >
           <span
             className={cn(
-              'flex size-11 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-105',
+              'flex size-10 shrink-0 items-center justify-center rounded-lg transition-transform group-hover:scale-105',
               category.chipClass,
             )}
           >
             <category.icon className="size-5" />
           </span>
-          <span className="flex min-w-0 flex-col">
+          <span className="flex min-w-0 flex-1 flex-col">
             <span
               className={cn(
                 'text-xs font-bold uppercase tracking-wider',
@@ -167,19 +167,14 @@ function TopicGrid({ onSelect }: { onSelect: (category: Category) => void }) {
             >
               {category.category}
             </span>
-            <span className="mt-2 text-sm leading-relaxed text-ink-500">
+            <span className="mt-0.5 truncate text-sm text-ink-500">
               {category.blurb}
             </span>
-            <span
-              className={cn(
-                'mt-3 inline-flex items-center gap-1 text-xs font-semibold transition-transform group-hover:translate-x-0.5',
-                category.accentClass,
-              )}
-            >
-              {category.prompts.length} example questions
-              <ArrowUpRight className="size-3.5" aria-hidden />
-            </span>
           </span>
+          <ArrowUpRight
+            className="size-4 shrink-0 text-ink-500 transition-transform group-hover:translate-x-0.5"
+            aria-hidden
+          />
         </button>
       ))}
     </div>
