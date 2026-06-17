@@ -81,7 +81,7 @@ export function Markdown({
   const blocks = content.split(/\n{2,}/)
 
   return (
-    <div className={cn('flex flex-col gap-3 text-base leading-7', className)}>
+    <div className={cn('flex max-w-prose flex-col gap-3 text-base leading-7', className)}>
       {blocks.map((block, blockIndex) => {
         const lines = block.split('\n').filter((line) => line.trim())
         if (!lines.length) return null
@@ -95,7 +95,7 @@ export function Markdown({
           return (
             <h3
               key={blockIndex}
-              className="text-lg font-bold text-ink-700"
+              className="text-lg font-bold leading-snug text-ink-700"
             >
               {renderInline(text, `h-${blockIndex}`, onCitation)}
             </h3>

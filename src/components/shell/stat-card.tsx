@@ -27,7 +27,7 @@ export function StatCard({
             </span>
           )}
         </div>
-        <p className="mt-2 text-3xl font-bold tracking-tight text-ink-700">
+        <p className="mt-2 text-3xl font-bold text-ink-700">
           {value}
         </p>
         <div className="mt-1 flex items-center gap-2 text-sm">

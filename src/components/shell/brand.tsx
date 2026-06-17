@@ -37,7 +37,7 @@ export function Brand({
     >
       <BrandMark />
       <span className="flex flex-col leading-tight">
-        <span className="text-lg font-bold tracking-tight text-ink-700">
+        <span className="text-lg font-bold text-ink-700">
           HCSA
         </span>
         {subtitle && (

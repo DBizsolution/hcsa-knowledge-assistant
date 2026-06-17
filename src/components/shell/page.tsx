@@ -38,7 +38,7 @@ export function PageHeader({
     <div className="mb-6 flex flex-col gap-3 md:mb-8 md:flex-row md:items-start md:justify-between">
       <div className="min-w-0">
         <div className="flex items-center gap-3">
-          <h2 className="text-2xl font-bold tracking-tight text-ink-700">
+          <h2 className="text-2xl font-bold text-ink-700">
             {title}
           </h2>
           {mock && (

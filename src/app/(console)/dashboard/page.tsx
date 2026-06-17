@@ -131,9 +131,7 @@ function HeroStat({
         <Icon className="size-4 text-ink-500" aria-hidden />
         <span className="text-sm font-medium text-ink-600">{label}</span>
       </div>
-      <p className="mt-1 text-2xl font-bold tracking-tight text-ink-700">
-        {value}
-      </p>
+      <p className="mt-1 text-2xl font-bold text-ink-700">{value}</p>
       <p className="text-xs text-ink-500">{hint}</p>
     </div>
   )
