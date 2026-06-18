@@ -28,7 +28,7 @@ const STATUS_BADGE: Record<string, string> = {
 
 export default function KnowledgeBasePage() {
   return (
-    <PageContainer size="wide">
+    <PageContainer>
       <PageHeader
         title="Knowledge base"
         description="Manage the indexed sources, chunks and embeddings that ground every answer."

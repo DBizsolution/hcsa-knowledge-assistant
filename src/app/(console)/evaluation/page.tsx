@@ -31,7 +31,7 @@ const STATUS_META = {
 
 export default function EvaluationPage() {
   return (
-    <PageContainer size="wide">
+    <PageContainer>
       <PageHeader
         title="Automated query testing"
         description="Run the benchmark query set and evaluate responses against expected answers using the Annex A metrics."
@@ -51,7 +51,7 @@ export default function EvaluationPage() {
         <StatCard label="Failed" value={String(failCount)} hint="follow-up required" trend={{ direction: 'down', value: '-1', good: true }} />
       </div>
 
-      <Card className="mt-6">
+      <Card className="mt-6 gap-3">
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle>Latest run · 17 Jun 2026</CardTitle>
           <div className="flex gap-2">
@@ -65,7 +65,7 @@ export default function EvaluationPage() {
             })}
           </div>
         </CardHeader>
-        <CardContent className="px-0">
+        <CardContent className="px-0 [&_td:first-child]:pl-4 [&_td:last-child]:pr-4 [&_th:first-child]:pl-4 [&_th:last-child]:pr-4">
           <Table>
             <TableHeader>
               <TableRow>
@@ -82,7 +82,7 @@ export default function EvaluationPage() {
               {EVAL_ROWS.map((row) => {
                 const meta = STATUS_META[row.status]
                 return (
-                  <TableRow key={row.query}>
+                  <TableRow key={row.query} className="hover:bg-gray-100">
                     <TableCell className="max-w-[280px]">
                       <span className="block truncate font-medium text-ink-700">
                         {row.query}
