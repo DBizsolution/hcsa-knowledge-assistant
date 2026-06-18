@@ -80,7 +80,7 @@ export function Markdown({
   const blocks = content.split(/\n{2,}/)
 
   return (
-    <div className={cn('flex max-w-prose flex-col gap-3 text-base leading-7', className)}>
+    <div className={cn('flex flex-col gap-3 text-base leading-7', className)}>
       {blocks.map((block, blockIndex) => {
         const lines = block.split('\n').filter((line) => line.trim())
         if (!lines.length) return null

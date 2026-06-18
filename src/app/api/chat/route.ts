@@ -10,6 +10,7 @@ import { z } from 'zod'
 import { retrieveChunks } from '@/lib/rag/retrieve'
 import { SYSTEM_PROMPT } from '@/lib/rag/prompt'
 import { CHAT_MODEL, SOURCE_TYPE_LABELS } from '@/lib/rag/config'
+import { matchPolicyEvolution } from '@/lib/rag/policy-evolution'
 
 export const maxDuration = 60
 
@@ -54,6 +55,36 @@ export async function POST(req: Request) {
             similarity: Number(chunk.similarity.toFixed(3)),
             content: chunk.content,
           }))
+        },
+      }),
+      analyzePolicyEvolution: tool({
+        description:
+          'Analyse how an HCSA policy has evolved over time and detect conflicts/contradictions between a policy and its related SOP. Use this — NOT searchKnowledgeBase — whenever the officer asks what changed in a policy, about version history or policy timelines, or about conflicting/contradictory/inconsistent guidance across documents. Returns a structured evolution report (timeline, changed clauses, contradictions, citations) that the UI renders directly. If it returns found:false, fall back to searchKnowledgeBase.',
+        inputSchema: z.object({
+          topic: z
+            .string()
+            .describe(
+              'The policy area or document the officer is asking about, e.g. "sustainable urban design", "green building", "POL-UD-002".',
+            ),
+        }),
+        execute: async ({ topic }) => {
+          const evolution = matchPolicyEvolution(topic)
+          if (!evolution) return { found: false as const, topic }
+          // Hybrid: ground the curated report with a live retrieval so the
+          // evidence shown alongside it is real (proves the system is live).
+          const chunks = await retrieveChunks(topic, { matchCount: 5 })
+          const evidence = chunks.map((chunk) => ({
+            ref: ++refCounter,
+            documentTitle: chunk.documentTitle,
+            sourceType: chunk.sourceType,
+            sourceLabel:
+              SOURCE_TYPE_LABELS[chunk.sourceType] ?? chunk.sourceType,
+            sourcePath: chunk.sourcePath,
+            chunkIndex: chunk.chunkIndex,
+            similarity: Number(chunk.similarity.toFixed(3)),
+            content: chunk.content,
+          }))
+          return { found: true as const, evolution, evidence }
         },
       }),
     },

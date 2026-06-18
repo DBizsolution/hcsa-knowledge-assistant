@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
-import { Leaf, Landmark, HardHat, Mail } from 'lucide-react'
+import { Leaf, Landmark, HardHat, Mail, GitCompareArrows } from 'lucide-react'
 
 export type Category = {
   category: string
@@ -16,6 +16,22 @@ export type Category = {
 }
 
 export const CATEGORIES: Category[] = [
+  {
+    category: 'Policy intelligence',
+    blurb: 'Track how policies evolved and where documents conflict',
+    prompts: [
+      'How has the Sustainable Urban Design policy evolved, and where does it conflict with the SOP?',
+      'What changed in the green building policy, and which clauses were affected?',
+      'Where do POL-UD-002 and SOP-UD-002 contradict each other, and which one governs?',
+      'Show the version timeline and renewable energy threshold changes for sustainable design.',
+    ],
+    icon: GitCompareArrows,
+    chipClass:
+      'bg-[color-mix(in_oklch,var(--hdb-red),white_90%)] text-hdb-red',
+    accentClass: 'text-hdb-red',
+    hoverClass:
+      'hover:border-hdb-red hover:bg-[color-mix(in_oklch,var(--hdb-red),white_94%)]',
+  },
   {
     category: 'Sustainability',
     blurb: 'Eco rebates, green requirements and energy reporting',

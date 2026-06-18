@@ -14,7 +14,8 @@ import { CATEGORIES, type Category } from './suggestions'
 
 export function ChatView() {
   const [input, setInput] = useState('')
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const prevCount = useRef(0)
 
   const { messages, sendMessage, status, stop, error, regenerate, clearError } =
     useChat({
@@ -28,9 +29,18 @@ export function ChatView() {
 
   const busy = status === 'submitted' || status === 'streaming'
 
+  // Scroll once per turn — pin the new question near the top so the answer
+  // streams into the space below. Never scroll on streaming tokens or on
+  // completion, which is what caused the screen to jump.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, status])
+    if (messages.length > prevCount.current) {
+      const container = scrollRef.current
+      const users = container?.querySelectorAll('[data-chat-role="user"]')
+      const lastUser = users?.[users.length - 1] as HTMLElement | undefined
+      lastUser?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    prevCount.current = messages.length
+  }, [messages.length])
 
   function submit(text: string) {
     const trimmed = text.trim()
@@ -43,7 +53,7 @@ export function ChatView() {
 
   return (
     <div className="flex h-[calc(100dvh-4rem)] flex-col">
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
         <div className="mx-auto w-full max-w-3xl px-4 py-6">
           {isEmpty ? (
             <EmptyState onPick={submit} />
@@ -58,6 +68,7 @@ export function ChatView() {
                     index === messages.length - 1 &&
                     message.role === 'assistant'
                   }
+                  onFollowUp={submit}
                 />
               ))}
               {error && (
@@ -80,7 +91,6 @@ export function ChatView() {
                   </Button>
                 </div>
               )}
-              <div ref={bottomRef} />
             </div>
           )}
         </div>

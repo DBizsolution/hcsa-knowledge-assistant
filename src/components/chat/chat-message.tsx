@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/collapsible'
 import { Markdown } from './markdown'
 import { SourceCard } from './source-card'
+import { PolicyEvolutionReport } from './policy-evolution-report'
 import { extractMessageMeta } from './types'
 
 /** Collect the source numbers referenced by [n] / [n, m] markers in the answer. */
@@ -39,9 +40,11 @@ function remapCitations(text: string, map: Map<number, number>): string {
 export function ChatMessage({
   message,
   isStreaming,
+  onFollowUp,
 }: {
   message: UIMessage
   isStreaming?: boolean
+  onFollowUp?: (prompt: string) => void
 }) {
   const [highlighted, setHighlighted] = useState<number | null>(null)
   const [sourcesOpen, setSourcesOpen] = useState(false)
@@ -53,7 +56,7 @@ export function ChatMessage({
       .map((part) => (part.type === 'text' ? part.text : ''))
       .join('')
     return (
-      <div className="flex justify-end">
+      <div data-chat-role="user" className="flex scroll-mt-4 justify-end">
         <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-teal-800 px-4 py-2.5 text-base leading-7 text-white">
           {text}
         </div>
@@ -61,8 +64,10 @@ export function ChatMessage({
     )
   }
 
-  const { text, sources, searching, queries } = extractMessageMeta(message)
-  const showCursor = isStreaming && text.length === 0 && !searching
+  const { text, sources, searching, analysing, queries, policyEvolution } =
+    extractMessageMeta(message)
+  const showCursor =
+    isStreaming && text.length === 0 && !searching && !analysing
 
   // The model retrieves more chunks than it cites. Show only the sources the
   // answer actually references (matching [n] markers), so the count is honest;
@@ -95,7 +100,7 @@ export function ChatMessage({
   }
 
   return (
-    <div className="flex gap-3">
+    <div data-chat-role="assistant" className="flex gap-3">
       <BrandMark className="mt-0.5 size-8 shrink-0 rounded-lg" />
       <div className="min-w-0 flex-1 space-y-3">
         {(searching || queries.length > 0) && (
@@ -122,6 +127,16 @@ export function ChatMessage({
           </div>
         )}
 
+        {analysing && (
+          <div
+            className="flex items-center gap-2 text-sm text-ink-500"
+            aria-live="polite"
+          >
+            <Loader2 className="size-4 animate-spin text-teal-600" aria-hidden />
+            <span>Analysing policy evolution and cross-document conflicts</span>
+          </div>
+        )}
+
         {showCursor && (
           <div
             className="flex items-center gap-2 text-sm text-ink-500"
@@ -138,6 +153,14 @@ export function ChatMessage({
 
         {displayText && (
           <Markdown content={displayText} onCitation={handleCitation} />
+        )}
+
+        {policyEvolution && (
+          <PolicyEvolutionReport
+            data={policyEvolution.evolution}
+            evidence={policyEvolution.evidence}
+            onFollowUp={onFollowUp}
+          />
         )}
 
         {displaySources.length > 0 && (
