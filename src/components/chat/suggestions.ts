@@ -27,10 +27,10 @@ export const CATEGORIES: Category[] = [
     ],
     icon: GitCompareArrows,
     chipClass:
-      'bg-[color-mix(in_oklch,var(--hdb-red),white_90%)] text-hdb-red',
-    accentClass: 'text-hdb-red',
+      'bg-[color-mix(in_oklch,var(--primary),var(--background)_88%)] text-primary',
+    accentClass: 'text-primary',
     hoverClass:
-      'hover:border-hdb-red hover:bg-[color-mix(in_oklch,var(--hdb-red),white_94%)]',
+      'hover:border-primary hover:bg-[color-mix(in_oklch,var(--primary),var(--background)_93%)]',
   },
   {
     category: 'Sustainability',
@@ -43,9 +43,11 @@ export const CATEGORIES: Category[] = [
       'What are the deadlines for submitting eco rebate applications each financial year?',
     ],
     icon: Leaf,
-    chipClass: 'bg-teal-50 text-teal-700',
-    accentClass: 'text-teal-700',
-    hoverClass: 'hover:border-teal-600 hover:bg-teal-50/60',
+    chipClass:
+      'bg-[color-mix(in_oklch,var(--success),var(--background)_88%)] text-success',
+    accentClass: 'text-success',
+    hoverClass:
+      'hover:border-[var(--success)] hover:bg-[color-mix(in_oklch,var(--success),var(--background)_93%)]',
   },
   {
     category: 'Financial report',
@@ -59,10 +61,10 @@ export const CATEGORIES: Category[] = [
     ],
     icon: Landmark,
     chipClass:
-      'bg-[color-mix(in_oklch,var(--link-blue),white_88%)] text-link-blue',
-    accentClass: 'text-link-blue',
+      'bg-[color-mix(in_oklch,var(--info),var(--background)_88%)] text-info',
+    accentClass: 'text-info',
     hoverClass:
-      'hover:border-link-blue hover:bg-[color-mix(in_oklch,var(--link-blue),white_93%)]',
+      'hover:border-[var(--info)] hover:bg-[color-mix(in_oklch,var(--info),var(--background)_93%)]',
   },
   {
     category: 'Site & permits',
@@ -75,9 +77,11 @@ export const CATEGORIES: Category[] = [
       'Who is the approving authority for variations to an approved site plan?',
     ],
     icon: HardHat,
-    chipClass: 'bg-amber-50 text-amber-600',
-    accentClass: 'text-amber-600',
-    hoverClass: 'hover:border-amber-500 hover:bg-amber-50/50',
+    chipClass:
+      'bg-[color-mix(in_oklch,var(--cat-cyan),var(--background)_88%)] text-cat-cyan',
+    accentClass: 'text-cat-cyan',
+    hoverClass:
+      'hover:border-[var(--cat-cyan)] hover:bg-[color-mix(in_oklch,var(--cat-cyan),var(--background)_93%)]',
   },
   {
     category: 'Correspondence',
@@ -91,9 +95,9 @@ export const CATEGORIES: Category[] = [
     ],
     icon: Mail,
     chipClass:
-      'bg-[color-mix(in_oklch,var(--hdb-red),white_90%)] text-hdb-red',
-    accentClass: 'text-hdb-red',
+      'bg-[color-mix(in_oklch,var(--cat-purple),var(--background)_88%)] text-cat-purple',
+    accentClass: 'text-cat-purple',
     hoverClass:
-      'hover:border-hdb-red hover:bg-[color-mix(in_oklch,var(--hdb-red),white_94%)]',
+      'hover:border-[var(--cat-purple)] hover:bg-[color-mix(in_oklch,var(--cat-purple),var(--background)_93%)]',
   },
 ]

@@ -13,6 +13,8 @@ import {
 import { Markdown } from './markdown'
 import { SourceCard } from './source-card'
 import { PolicyEvolutionReport } from './policy-evolution-report'
+import { StructuredResultView } from './structured-result'
+import { MessageFeedback } from './message-feedback'
 import { extractMessageMeta } from './types'
 
 /** Collect the source numbers referenced by [n] / [n, m] markers in the answer. */
@@ -57,17 +59,25 @@ export function ChatMessage({
       .join('')
     return (
       <div data-chat-role="user" className="flex scroll-mt-4 justify-end">
-        <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-teal-800 px-4 py-2.5 text-base leading-7 text-white">
+        <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-primary px-4 py-2.5 text-base leading-7 text-primary-foreground">
           {text}
         </div>
       </div>
     )
   }
 
-  const { text, sources, searching, analysing, queries, policyEvolution } =
-    extractMessageMeta(message)
+  const {
+    text,
+    sources,
+    searching,
+    analysing,
+    querying,
+    queries,
+    policyEvolution,
+    structuredData,
+  } = extractMessageMeta(message)
   const showCursor =
-    isStreaming && text.length === 0 && !searching && !analysing
+    isStreaming && text.length === 0 && !searching && !analysing && !querying
 
   // The model retrieves more chunks than it cites. Show only the sources the
   // answer actually references (matching [n] markers), so the count is honest;
@@ -137,6 +147,16 @@ export function ChatMessage({
           </div>
         )}
 
+        {querying && (
+          <div
+            className="flex items-center gap-2 text-sm text-ink-500"
+            aria-live="polite"
+          >
+            <Loader2 className="size-4 animate-spin text-link-blue" aria-hidden />
+            <span>Querying the project datasets (Permits, Inspections, Projects)</span>
+          </div>
+        )}
+
         {showCursor && (
           <div
             className="flex items-center gap-2 text-sm text-ink-500"
@@ -161,6 +181,10 @@ export function ChatMessage({
             evidence={policyEvolution.evidence}
             onFollowUp={onFollowUp}
           />
+        )}
+
+        {structuredData && (
+          <StructuredResultView data={structuredData} onFollowUp={onFollowUp} />
         )}
 
         {displaySources.length > 0 && (
@@ -189,6 +213,10 @@ export function ChatMessage({
               ))}
             </CollapsibleContent>
           </Collapsible>
+        )}
+
+        {!isStreaming && (displayText || structuredData || policyEvolution) && (
+          <MessageFeedback answer={displayText} />
         )}
       </div>
     </div>

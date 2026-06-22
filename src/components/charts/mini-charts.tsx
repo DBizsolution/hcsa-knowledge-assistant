@@ -1,9 +1,33 @@
+'use client'
+
+import { useId } from 'react'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart as RBarChart,
+  CartesianGrid,
+  Cell,
+  Label,
+  Pie,
+  PieChart,
+  PolarAngleAxis,
+  RadialBar,
+  RadialBarChart,
+  XAxis,
+} from 'recharts'
 import { cn } from '@/lib/utils'
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart'
 
 /** Vertical bar chart. */
 export function BarChart({
   data,
-  height = 160,
+  height = 180,
   className,
   format = (v) => String(v),
 }: {
@@ -12,22 +36,45 @@ export function BarChart({
   className?: string
   format?: (value: number) => string
 }) {
-  const max = Math.max(...data.map((d) => d.value), 1)
+  const config = {
+    value: { label: 'Value', color: 'var(--chart-2)' },
+  } satisfies ChartConfig
+
   return (
-    <div className={cn('flex items-end gap-3', className)} style={{ height }}>
-      {data.map((d) => (
-        <div key={d.label} className="flex flex-1 flex-col items-center gap-2">
-          <div className="flex w-full flex-1 items-end">
-            <div
-              className="w-full rounded-t-md bg-chart-2 transition-all"
-              style={{ height: `${Math.max((d.value / max) * 100, 4)}%` }}
-              title={format(d.value)}
+    <ChartContainer
+      config={config}
+      style={{ height }}
+      className={cn('aspect-auto w-full', className)}
+    >
+      <RBarChart
+        accessibilityLayer
+        data={data}
+        margin={{ top: 12, right: 8, left: 8, bottom: 0 }}
+      >
+        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <XAxis
+          dataKey="label"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={10}
+        />
+        <ChartTooltip
+          cursor={{ fill: 'var(--muted)', opacity: 0.5 }}
+          content={
+            <ChartTooltipContent
+              hideIndicator
+              formatter={(value) => format(Number(value))}
             />
-          </div>
-          <span className="text-xs text-ink-500">{d.label}</span>
-        </div>
-      ))}
-    </div>
+          }
+        />
+        <Bar
+          dataKey="value"
+          fill="var(--color-value)"
+          radius={[6, 6, 0, 0]}
+          maxBarSize={64}
+        />
+      </RBarChart>
+    </ChartContainer>
   )
 }
 
@@ -45,7 +92,7 @@ export function BarList({
         <div key={d.label} className="space-y-1">
           <div className="flex items-center justify-between text-sm">
             <span className="text-ink-600">{d.label}</span>
-            <span className="font-bold text-ink-700">
+            <span className="font-bold tabular-nums text-ink-700">
               {Math.round(d.value * 100)}%
             </span>
           </div>
@@ -64,45 +111,55 @@ export function BarList({
 /** Area sparkline from a series of numbers. */
 export function Sparkline({
   values,
-  height = 56,
+  height = 64,
   className,
 }: {
   values: number[]
   height?: number
   className?: string
 }) {
-  const width = 240
-  const max = Math.max(...values)
-  const min = Math.min(...values)
-  const range = max - min || 1
-  const step = width / (values.length - 1)
-  const points = values.map((v, i) => {
-    const x = i * step
-    const y = height - ((v - min) / range) * (height - 8) - 4
-    return [x, y] as const
-  })
-  const line = points.map(([x, y]) => `${x},${y}`).join(' ')
-  const area = `0,${height} ${line} ${width},${height}`
+  const gradientId = useId()
+  const data = values.map((value, index) => ({ index, value }))
+  const config = {
+    value: { label: 'Value', color: 'var(--chart-2)' },
+  } satisfies ChartConfig
 
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      className={cn('w-full', className)}
-      preserveAspectRatio="none"
-      role="img"
-      aria-label="Trend sparkline"
+    <ChartContainer
+      config={config}
+      style={{ height }}
+      className={cn('aspect-auto w-full', className)}
     >
-      <polygon points={area} fill="var(--chart-2)" opacity="0.12" />
-      <polyline
-        points={line}
-        fill="none"
-        stroke="var(--chart-2)"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
+      <AreaChart
+        accessibilityLayer
+        data={data}
+        margin={{ top: 4, right: 0, left: 0, bottom: 0 }}
+      >
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop
+              offset="5%"
+              stopColor="var(--color-value)"
+              stopOpacity={0.25}
+            />
+            <stop
+              offset="95%"
+              stopColor="var(--color-value)"
+              stopOpacity={0}
+            />
+          </linearGradient>
+        </defs>
+        <Area
+          dataKey="value"
+          type="monotone"
+          stroke="var(--color-value)"
+          strokeWidth={2}
+          fill={`url(#${gradientId})`}
+          dot={false}
+          isAnimationActive={false}
+        />
+      </AreaChart>
+    </ChartContainer>
   )
 }
 
@@ -111,62 +168,79 @@ export function DonutChart({
   segments,
   size = 168,
   className,
+  centerLabel = 'chunks',
 }: {
   segments: { label: string; value: number; color: string }[]
   size?: number
   className?: string
+  centerLabel?: string
 }) {
-  const total = segments.reduce((sum, s) => sum + s.value, 0) || 1
-  const radius = 60
-  const circumference = 2 * Math.PI * radius
-
-  const dashes = segments.map((s) => (s.value / total) * circumference)
-  const arcs = segments.map((s, i) => ({
-    ...s,
-    dash: dashes[i],
-    offset: dashes.slice(0, i).reduce((sum, d) => sum + d, 0),
+  const total = segments.reduce((sum, s) => sum + s.value, 0)
+  const data = segments.map((s) => ({
+    name: s.label,
+    value: s.value,
+    fill: s.color,
   }))
+  const config: ChartConfig = Object.fromEntries(
+    segments.map((s) => [s.label, { label: s.label, color: s.color }]),
+  )
 
   return (
     <div className={cn('flex items-center gap-6', className)}>
-      <svg
-        viewBox="0 0 160 160"
+      <ChartContainer
+        config={config}
         style={{ width: size, height: size }}
-        role="img"
-        aria-label="Distribution donut chart"
+        className="aspect-square shrink-0"
       >
-        <g transform="rotate(-90 80 80)">
-          {arcs.map((s) => (
-            <circle
-              key={s.label}
-              cx="80"
-              cy="80"
-              r={radius}
-              fill="none"
-              stroke={s.color}
-              strokeWidth="20"
-              strokeDasharray={`${s.dash} ${circumference - s.dash}`}
-              strokeDashoffset={-s.offset}
+        <PieChart>
+          <ChartTooltip
+            cursor={false}
+            content={<ChartTooltipContent hideLabel />}
+          />
+          <Pie
+            data={data}
+            dataKey="value"
+            nameKey="name"
+            innerRadius={size * 0.3}
+            outerRadius={size * 0.46}
+            paddingAngle={2}
+            strokeWidth={2}
+            stroke="var(--background)"
+          >
+            {data.map((entry) => (
+              <Cell key={entry.name} fill={entry.fill} />
+            ))}
+            <Label
+              content={({ viewBox }) => {
+                if (!viewBox || !('cx' in viewBox)) return null
+                return (
+                  <text
+                    x={viewBox.cx}
+                    y={viewBox.cy}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                  >
+                    <tspan
+                      x={viewBox.cx}
+                      y={(viewBox.cy ?? 0) - 4}
+                      className="fill-ink-700 text-2xl font-bold"
+                    >
+                      {total.toLocaleString()}
+                    </tspan>
+                    <tspan
+                      x={viewBox.cx}
+                      y={(viewBox.cy ?? 0) + 16}
+                      className="fill-ink-500 text-xs"
+                    >
+                      {centerLabel}
+                    </tspan>
+                  </text>
+                )
+              }}
             />
-          ))}
-        </g>
-        <text
-          x="80"
-          y="76"
-          textAnchor="middle"
-          className="fill-ink-700 text-2xl font-bold"
-        >
-          {total}
-        </text>
-        <text
-          x="80"
-          y="96"
-          textAnchor="middle"
-          className="fill-ink-500 text-xs"
-        >
-          chunks
-        </text>
-      </svg>
+          </Pie>
+        </PieChart>
+      </ChartContainer>
       <ul className="space-y-2 text-sm">
         {segments.map((s) => (
           <li key={s.label} className="flex items-center gap-2">
@@ -175,7 +249,9 @@ export function DonutChart({
               style={{ backgroundColor: s.color }}
             />
             <span className="text-ink-600">{s.label}</span>
-            <span className="font-bold text-ink-700">{s.value}</span>
+            <span className="font-bold tabular-nums text-ink-700">
+              {s.value}
+            </span>
           </li>
         ))}
       </ul>
@@ -193,39 +269,52 @@ export function MetricRing({
   label: string
   size?: number
 }) {
-  const radius = 54
-  const circumference = 2 * Math.PI * radius
-  const dash = value * circumference
+  const pct = Math.round(value * 100)
+  const data = [{ name: label, value: pct }]
+  const config = {
+    value: { label, color: 'var(--chart-2)' },
+  } satisfies ChartConfig
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <svg
-        viewBox="0 0 128 128"
+      <ChartContainer
+        config={config}
         style={{ width: size, height: size }}
-        role="img"
-        aria-label={`${label}: ${Math.round(value * 100)} percent`}
+        className="aspect-square"
       >
-        <circle cx="64" cy="64" r={radius} fill="none" stroke="var(--muted)" strokeWidth="12" />
-        <circle
-          cx="64"
-          cy="64"
-          r={radius}
-          fill="none"
-          stroke="var(--chart-2)"
-          strokeWidth="12"
-          strokeLinecap="round"
-          strokeDasharray={`${dash} ${circumference}`}
-          transform="rotate(-90 64 64)"
-        />
-        <text
-          x="64"
-          y="70"
-          textAnchor="middle"
-          className="fill-ink-700 text-2xl font-bold"
+        <RadialBarChart
+          data={data}
+          startAngle={90}
+          endAngle={90 - 360}
+          innerRadius="68%"
+          outerRadius="100%"
+          barSize={12}
         >
-          {Math.round(value * 100)}%
-        </text>
-      </svg>
+          <PolarAngleAxis
+            type="number"
+            domain={[0, 100]}
+            angleAxisId={0}
+            tick={false}
+          />
+          <RadialBar
+            dataKey="value"
+            angleAxisId={0}
+            cornerRadius={8}
+            fill="var(--color-value)"
+            background={{ fill: 'var(--muted)' }}
+            isAnimationActive={false}
+          />
+          <text
+            x="50%"
+            y="50%"
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="fill-ink-700 text-2xl font-bold"
+          >
+            {pct}%
+          </text>
+        </RadialBarChart>
+      </ChartContainer>
       <span className="text-sm font-medium text-ink-600">{label}</span>
     </div>
   )

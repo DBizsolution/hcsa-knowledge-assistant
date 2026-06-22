@@ -8,9 +8,10 @@ import {
 import { openai } from '@ai-sdk/openai'
 import { z } from 'zod'
 import { retrieveChunks } from '@/lib/rag/retrieve'
-import { SYSTEM_PROMPT } from '@/lib/rag/prompt'
+import { buildSystemPrompt } from '@/lib/rag/prompt'
 import { CHAT_MODEL, SOURCE_TYPE_LABELS } from '@/lib/rag/config'
 import { matchPolicyEvolution } from '@/lib/rag/policy-evolution'
+import { runStructuredQuery } from '@/lib/rag/structured-query'
 
 export const maxDuration = 60
 
@@ -22,7 +23,8 @@ export async function POST(req: Request) {
     )
   }
 
-  const { messages }: { messages: UIMessage[] } = await req.json()
+  const { messages, persona }: { messages: UIMessage[]; persona?: string } =
+    await req.json()
 
   // Stable, monotonic reference numbers across (possibly multiple) searches.
   let refCounter = 0
@@ -31,7 +33,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: openai(CHAT_MODEL),
-    system: SYSTEM_PROMPT,
+    system: buildSystemPrompt(persona),
     messages: modelMessages,
     stopWhen: stepCountIs(5),
     tools: {
@@ -85,6 +87,22 @@ export async function POST(req: Request) {
             content: chunk.content,
           }))
           return { found: true as const, evolution, evidence }
+        },
+      }),
+      queryStructuredData: tool({
+        description:
+          'Run an analytical query over the relational project datasets (Contractors, Projects, Permits, Inspections) for quantitative questions — counts, totals, rankings, distributions, trends by quarter/year, joins across datasets, and exception lists (overdue/failed). Translates the question into a read-only SQL query and returns a structured result (metrics, table, query explanation) that the UI renders directly. Use this — NOT searchKnowledgeBase — for "how many", "which contractor has the most", "average/total", "distribution of", "by quarter", "overdue" or "failed" questions. If it returns found:false, fall back to searchKnowledgeBase.',
+        inputSchema: z.object({
+          query: z
+            .string()
+            .describe(
+              'The analytical question in natural language, e.g. "distribution of contractor ratings", "how many inactive contractors hold ongoing projects", "average defects by inspection type".',
+            ),
+        }),
+        execute: async ({ query }) => {
+          const result = await runStructuredQuery(query)
+          if (!result) return { found: false as const, query }
+          return { found: true as const, result }
         },
       }),
     },

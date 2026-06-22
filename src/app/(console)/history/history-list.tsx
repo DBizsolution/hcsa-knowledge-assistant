@@ -1,14 +1,17 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Search, MessageSquare, ArrowRight, SearchX } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { CONVERSATIONS, type Conversation } from '@/data/mock'
+import { useChatSessionStore } from '@/lib/use-chat-session-store'
+import { CONVERSATIONS, type StoredConversation } from '@/data/conversations'
 
 export function HistoryList() {
   const [query, setQuery] = useState('')
+  const router = useRouter()
+  const openConversation = useChatSessionStore((state) => state.openConversation)
 
   const filtered = useMemo(() => {
     const term = query.trim().toLowerCase()
@@ -20,6 +23,11 @@ export function HistoryList() {
         .includes(term),
     )
   }, [query])
+
+  function open(conversation: StoredConversation) {
+    openConversation(conversation)
+    router.push('/chat')
+  }
 
   return (
     <>
@@ -39,7 +47,11 @@ export function HistoryList() {
       ) : (
         <div className="space-y-3">
           {filtered.map((conversation) => (
-            <ConversationRow key={conversation.title} conversation={conversation} />
+            <ConversationRow
+              key={conversation.id}
+              conversation={conversation}
+              onOpen={() => open(conversation)}
+            />
           ))}
         </div>
       )}
@@ -47,12 +59,19 @@ export function HistoryList() {
   )
 }
 
-function ConversationRow({ conversation }: { conversation: Conversation }) {
+function ConversationRow({
+  conversation,
+  onOpen,
+}: {
+  conversation: StoredConversation
+  onOpen: () => void
+}) {
   return (
-    <Link
-      href="/chat"
+    <button
+      type="button"
+      onClick={onOpen}
       aria-label={`Open ${conversation.title}`}
-      className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 no-underline transition hover:border-teal-600 hover:bg-teal-50/50 hover:shadow-md hover:no-underline motion-safe:hover:-translate-y-0.5"
+      className="group flex w-full items-center gap-4 rounded-xl border border-border bg-card p-4 text-left transition hover:border-teal-600 hover:bg-teal-50/50 hover:shadow-md motion-safe:hover:-translate-y-0.5"
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-700">
         <MessageSquare className="size-5" />
@@ -70,10 +89,10 @@ function ConversationRow({ conversation }: { conversation: Conversation }) {
       </div>
       <div className="hidden shrink-0 flex-col items-end gap-1 text-sm text-ink-500 sm:flex">
         <span>{conversation.date}</span>
-        <span>{conversation.messages} messages</span>
+        <span>{conversation.transcript.length} messages</span>
       </div>
       <ArrowRight className="size-5 shrink-0 text-ink-500 transition-colors group-hover:text-teal-700" />
-    </Link>
+    </button>
   )
 }
 

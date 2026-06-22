@@ -11,7 +11,8 @@ export function PageContainer({
   return (
     <div
       className={cn(
-        'mx-auto w-full max-w-[90rem] px-4 py-6 md:px-8 md:py-8',
+        // Gov-style centred content column (~1152px), not full-bleed.
+        'mx-auto w-full max-w-6xl px-4 py-6 md:px-8 md:py-8',
         className,
       )}
     >

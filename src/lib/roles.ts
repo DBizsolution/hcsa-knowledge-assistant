@@ -19,7 +19,7 @@ export const ROLES: RoleMeta[] = [
     id: 'officer',
     label: 'Officer',
     rank: 0,
-    blurb: 'End-user portal — ask questions, draft documents, review history.',
+    blurb: 'End-user portal: ask questions, draft documents, review history.',
   },
   {
     id: 'knowledge_officer',
@@ -31,7 +31,7 @@ export const ROLES: RoleMeta[] = [
     id: 'admin',
     label: 'Administrator',
     rank: 2,
-    blurb: 'Full operations console — evaluation, configuration, users.',
+    blurb: 'Full operations console: evaluation, configuration, users.',
   },
 ]
 

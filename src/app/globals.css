@@ -5,109 +5,323 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
-   HDB / HCSA design tokens — reverse-engineered from the live
-   HDB homepage (see styleguide.md). Themed tweakcn-style: every
-   colour is a CSS variable; components consume the semantic
-   shadcn slots, never raw hex.
+   SGDS / GovTech design tokens.
+   Exact values pulled from the SGDS web-component theme source
+   (github.com/GovTechSG/sgds-web-component, src/themes/*).
+
+   Two independent axes compose on <html>:
+     • light / dark  → `.dark` class (next-themes)
+     • brand colour  → `data-theme="…"` attribute (use-brand-theme)
+
+   Layering:
+     :root                → neutral ramp + structural slots (light) + the
+                            default (SGDS) brand as a no-JS fallback.
+     .dark                → neutral ramp + structural slots (dark).
+     [data-theme=x]       → that brand's brand-driven vars (light).
+     .dark[data-theme=x]  → same vars (dark).
+
+   Brand-driven vars (set per theme):
+     --primary / --primary-foreground   solid fills + white text
+     --brand-strong                     always-dark hover fill (700 step)
+     --brand-text                       accent text: dark in light, light in dark
+     --accent / --accent-foreground     tint surface + its text
+     --ring                             focus ring
+
+   Everything else (secondary, sidebar, charts, and the legacy
+   hdb-red / teal-* / ink-* aliases the components still reference)
+   is expressed in terms of those vars once, so the whole app follows
+   the active brand + mode with no per-component work.
    ============================================================ */
 
 :root {
-  /* Brand palette */
-  --hdb-red: #c3141e;
-  --hdb-red-hover: #a00a19;
-  --teal-900: #053436;
-  --teal-800: #085054;
-  --teal-600: #0a676d;
-  --teal-50: #eff8fa;
-  --ink: #212529;
-  --ink-700: #343a40;
-  --ink-600: #495057;
-  --ink-500: #6c757d;
-  --line: #dee2e6;
-  --line-soft: #ced4da;
-  --gray-50: #f8f9fa;
-  --gray-100: #f0f0f0;
-  --footer-bg: #21252a;
-  --link-blue: #2f60ce;
+  /* SGDS neutral ramp (light) — truly neutral grey, non-standard steps */
+  --gray-50: #f7f7f7;
+  --gray-100: #f3f3f3;
+  --gray-200: #dfdfdf;
+  --gray-300: #c6c6c6;
+  --gray-400: #a5a5a5;
+  --gray-500: #868686;
+  --gray-600: #6b6b6b;
+  --gray-700: #525252;
+  --gray-800: #3b3b3b;
+  --gray-900: #2a2a2a;
+  --gray-1000: #1a1a1a;
+  --gray-1100: #0e0e0e;
 
-  /* Semantic shadcn slots mapped onto the brand palette */
+  /* Structural slots (light) */
   --background: #ffffff;
-  --foreground: var(--ink);
+  --foreground: #1a1a1a;
   --card: #ffffff;
-  --card-foreground: var(--ink);
+  --card-foreground: #1a1a1a;
   --popover: #ffffff;
-  --popover-foreground: var(--ink);
+  --popover-foreground: #1a1a1a;
+  --muted: #f7f7f7;
+  --muted-foreground: #525252;
+  --border: #dfdfdf; /* dividers / card borders */
+  --input: #868686; /* SGDS input border is darker than dividers */
 
-  --primary: var(--hdb-red);
-  --primary-foreground: #ffffff;
-  --secondary: var(--teal-50);
-  --secondary-foreground: var(--teal-900);
-  --muted: var(--gray-50);
-  --muted-foreground: var(--ink-600); /* AA: ~8:1 on white */
-  --accent: var(--teal-50);
-  --accent-foreground: var(--teal-900);
-  --destructive: var(--hdb-red-hover);
+  /* Semantic — fixed, independent of brand (SGDS functional ramps) */
+  --destructive: #cf2323;
   --destructive-foreground: #ffffff;
+  --success: #0e7c3d;
+  --success-foreground: #ffffff;
+  --warning: #fef4cb; /* SGDS warning = light fill … */
+  --warning-foreground: #605111; /* … with dark text */
 
-  --border: var(--line);
-  --input: var(--line-soft);
-  --ring: var(--teal-600); /* visible, AA-contrast focus ring */
+  /* Neutral text/line aliases the components reference (mode-aware) */
+  --ink: var(--foreground);
+  --ink-700: #2a2a2a; /* headings */
+  --ink-600: #525252; /* secondary text */
+  --ink-500: #6b6b6b; /* muted text */
+  --ink-300: #c6c6c6; /* subtle borders */
+  --line: #dfdfdf;
+  --line-soft: #c6c6c6;
+  --footer-bg: #1a1a1a;
 
-  /* Charts (dashboards) — brand-led, distinguishable */
-  --chart-1: var(--hdb-red);
-  --chart-2: var(--teal-600);
-  --chart-3: var(--teal-800);
-  --chart-4: var(--link-blue);
-  --chart-5: var(--ink-500);
+  /* Brand-derived references — resolve per data-theme automatically */
+  --secondary: var(--accent);
+  --secondary-foreground: var(--accent-foreground);
 
-  --radius: 0.75rem; /* 12px base → cards/buttons read like the live site */
-
-  /* Console sidebar */
   --sidebar: #ffffff;
-  --sidebar-foreground: var(--ink);
-  --sidebar-primary: var(--hdb-red);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: var(--teal-50);
-  --sidebar-accent-foreground: var(--teal-900);
-  --sidebar-border: var(--line);
-  --sidebar-ring: var(--teal-600);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  /* Charts — IBM Carbon categorical palette, light-background variant
+     (carbondesignsystem.com data-viz). Fixed and brand-independent so the
+     series hues stay stable + legible across all brand themes; the .dark
+     block swaps in Carbon's lighter dark-background tokens. --chart-muted is
+     a neutral for de-emphasised series (e.g. non-highlighted bars). */
+  --chart-1: #6929c4; /* purple 70 */
+  --chart-2: #1192e8; /* blue 60 */
+  --chart-3: #005d5d; /* teal 70 */
+  --chart-4: #9f1853; /* magenta 70 */
+  --chart-5: #198038; /* green 60 */
+  --chart-muted: #8d8d8d; /* gray 50 — legible on both light & dark surfaces */
+
+  /* Carbon support-warning gold (yellow 30) — a fixed accent that reads on
+     both light and dark surfaces, for inline notice/callout borders. */
+  --warning-accent: #f1c21b;
+
+  /* Legacy brand aliases → brand-driven vars (kept so the existing
+     hdb-red / teal-* / link-blue utilities follow the active theme) */
+  --hdb-red: var(--primary);
+  --hdb-red-hover: var(--brand-strong);
+  --teal-50: var(--accent);
+  --teal-100: var(--accent);
+  --teal-200: color-mix(in oklab, var(--primary) 24%, transparent);
+  --teal-500: var(--primary);
+  --teal-600: var(--primary);
+  --teal-700: var(--brand-text);
+  --teal-800: var(--brand-text);
+  --teal-900: var(--brand-text);
+  --link-blue: var(--primary);
+
+  /* Fixed semantic + categorical hues — STABLE across brand themes,
+     dark-aware. For status badges (success/danger/warning/info) and
+     category tags that must NOT shift when the brand colour changes.
+     Soft badge fills are derived inline via color-mix toward --background. */
+  --info: #0269d0; /* SGDS accent blue */
+  --cat-purple: #8516a9;
+  --cat-cyan: #00758d;
+
+  --radius: 0.5rem; /* SGDS md = 8px (buttons/inputs/cards) */
+
+  /* Default brand (SGDS purple) — no-JS fallback */
+  --primary: #6b4feb;
+  --primary-foreground: #ffffff;
+  --brand-strong: #523abc;
+  --brand-text: #523abc;
+  --accent: #f4f2fe;
+  --accent-foreground: #3c2b8a;
+  --ring: #6b4feb;
 }
 
 .dark {
-  /* Dark variant kept conservative — the gov aesthetic is light-first.
-     Provided so shadcn dark utilities never break. */
-  --background: #0d1414;
-  --foreground: #f3f6f6;
-  --card: #102020;
-  --card-foreground: #f3f6f6;
-  --popover: #102020;
-  --popover-foreground: #f3f6f6;
-  --primary: #e8505b;
-  --primary-foreground: #1a0506;
-  --secondary: #14322f;
-  --secondary-foreground: #eaf6f6;
-  --muted: #16302f;
-  --muted-foreground: #aac4c4;
-  --accent: #14322f;
-  --accent-foreground: #eaf6f6;
-  --destructive: #e8505b;
-  --destructive-foreground: #1a0506;
-  --border: rgba(255, 255, 255, 0.12);
-  --input: rgba(255, 255, 255, 0.16);
-  --ring: #4db3bb;
-  --chart-1: #e8505b;
-  --chart-2: #4db3bb;
-  --chart-3: #2f8a90;
-  --chart-4: #6f97e8;
-  --chart-5: #9aa6ad;
-  --sidebar: #102020;
-  --sidebar-foreground: #f3f6f6;
-  --sidebar-primary: #e8505b;
-  --sidebar-primary-foreground: #1a0506;
-  --sidebar-accent: #14322f;
-  --sidebar-accent-foreground: #eaf6f6;
-  --sidebar-border: rgba(255, 255, 255, 0.12);
-  --sidebar-ring: #4db3bb;
+  /* SGDS "night" theme — exact surface values from night.css */
+  --background: #0e0e0e; /* gray-1100 */
+  --foreground: #f3f3f3; /* default text gray-100 */
+  --card: #2a2a2a; /* surface-default gray-900 */
+  --card-foreground: #f3f3f3;
+  --popover: #2a2a2a;
+  --popover-foreground: #f3f3f3;
+  --muted: #1a1a1a; /* alt-section gray-1000 */
+  --muted-foreground: #a5a5a5; /* subtle gray-400 */
+  --border: #3b3b3b; /* border-muted gray-800 */
+  --input: #868686; /* border-default gray-500 (same as light) */
+
+  --destructive: #e05959; /* danger text in dark = red-500 */
+  --destructive-foreground: #0e0e0e;
+  --success: #62db96; /* success text in dark = green-400 */
+  --success-foreground: #06160b;
+  --warning: #fcde63; /* warning fill holds (yellow-200) */
+  --warning-foreground: #1a1a1a; /* dark text on warning fill */
+
+  --ink: var(--foreground);
+  --ink-700: #f3f3f3; /* headings */
+  --ink-600: #c6c6c6;
+  --ink-500: #a5a5a5;
+  --ink-300: #3b3b3b;
+  --line: #3b3b3b;
+  --line-soft: #525252;
+  --footer-bg: #0e0e0e;
+
+  /* Categorical/info hues move to lighter steps on dark (per SGDS pattern) */
+  --info: #60aaf4; /* blue-400 */
+  --cat-purple: #e6adf9; /* purple-300 */
+  --cat-cyan: #49d2ef; /* cyan-300 */
+
+  --sidebar: #1a1a1a;
+
+  /* Charts — IBM Carbon dark-background variant (lighter 30–50 tokens). */
+  --chart-1: #8a3ffc; /* purple 50 */
+  --chart-2: #33b1ff; /* blue 40 */
+  --chart-3: #07a8a0; /* teal 40 — lifted from teal-50 for card contrast */
+  --chart-4: #ff7eb6; /* magenta 30 */
+  --chart-5: #6fdc8c; /* green 30 */
+}
+
+/* ---- Brand themes -------------------------------------------------- */
+/* Light: primary=600, brand-strong=700, brand-text=700, accent=100,
+   accent-foreground=800, ring=600.
+   Dark: primary=600 (white text holds), brand-strong=700, brand-text=300,
+   accent=translucent primary, accent-foreground=200, ring=400. */
+
+[data-theme="sgds"] {
+  --primary: #6b4feb;
+  --primary-foreground: #ffffff;
+  --brand-strong: #523abc;
+  --brand-text: #523abc;
+  --accent: #f4f2fe;
+  --accent-foreground: #3c2b8a;
+  --ring: #6b4feb;
+}
+.dark[data-theme="sgds"] {
+  --primary: #6b4feb;
+  --primary-foreground: #ffffff;
+  --brand-strong: #523abc;
+  --brand-text: #c8bdf7;
+  --accent: color-mix(in oklab, #6b4feb 26%, transparent);
+  --accent-foreground: #e1dbfb;
+  --ring: #a999f3;
+}
+
+[data-theme="blue"] {
+  --primary: #356dac;
+  --primary-foreground: #ffffff;
+  --brand-strong: #285483;
+  --brand-text: #285483;
+  --accent: #eff5fc;
+  --accent-foreground: #1e3e62;
+  --ring: #356dac;
+}
+.dark[data-theme="blue"] {
+  --primary: #356dac;
+  --primary-foreground: #ffffff;
+  --brand-strong: #285483;
+  --brand-text: #a0c5ee;
+  --accent: color-mix(in oklab, #4288d6 26%, transparent);
+  --accent-foreground: #cee1f6;
+  --ring: #73a9e5;
+}
+
+[data-theme="cyan"] {
+  --primary: #00758d;
+  --primary-foreground: #ffffff;
+  --brand-strong: #005971;
+  --brand-text: #005971;
+  --accent: #e0f7fe;
+  --accent-foreground: #004355;
+  --ring: #00758d;
+}
+.dark[data-theme="cyan"] {
+  --primary: #00758d;
+  --primary-foreground: #ffffff;
+  --brand-strong: #005971;
+  --brand-text: #49d2ef;
+  --accent: color-mix(in oklab, #0091b8 26%, transparent);
+  --accent-foreground: #a8e9f7;
+  --ring: #00b3e2;
+}
+
+[data-theme="magenta"] {
+  --primary: #b82ea0;
+  --primary-foreground: #ffffff;
+  --brand-strong: #8e247b;
+  --brand-text: #8e247b;
+  --accent: #fbf2f9;
+  --accent-foreground: #6a1b5d;
+  --ring: #b82ea0;
+}
+.dark[data-theme="magenta"] {
+  --primary: #b82ea0;
+  --primary-foreground: #ffffff;
+  --brand-strong: #8e247b;
+  --brand-text: #e5b2dc;
+  --accent: color-mix(in oklab, #c95eb7 26%, transparent);
+  --accent-foreground: #f2d8ed;
+  --ring: #d98bcb;
+}
+
+[data-theme="pink"] {
+  --primary: #c7286a;
+  --primary-foreground: #ffffff;
+  --brand-strong: #991f52;
+  --brand-text: #991f52;
+  --accent: #fdf0f6;
+  --accent-foreground: #74173d;
+  --ring: #c7286a;
+}
+.dark[data-theme="pink"] {
+  --primary: #c7286a;
+  --primary-foreground: #ffffff;
+  --brand-strong: #991f52;
+  --brand-text: #f3aecb;
+  --accent: color-mix(in oklab, #e54d8c 26%, transparent);
+  --accent-foreground: #f9d6e4;
+  --ring: #ed84af;
+}
+
+[data-theme="purple"] {
+  --primary: #8055bb;
+  --primary-foreground: #ffffff;
+  --brand-strong: #634190;
+  --brand-text: #634190;
+  --accent: #f6f3fb;
+  --accent-foreground: #49306b;
+  --ring: #8055bb;
+}
+.dark[data-theme="purple"] {
+  --primary: #8055bb;
+  --primary-foreground: #ffffff;
+  --brand-strong: #634190;
+  --brand-text: #cebae7;
+  --accent: color-mix(in oklab, #9a74cf 26%, transparent);
+  --accent-foreground: #e5dbf2;
+  --ring: #b598dc;
+}
+
+[data-theme="red"] {
+  --primary: #cb2b33;
+  --primary-foreground: #ffffff;
+  --brand-strong: #9e2127;
+  --brand-text: #9e2127;
+  --accent: #fef0f1;
+  --accent-foreground: #76191e;
+  --ring: #cb2b33;
+}
+.dark[data-theme="red"] {
+  --primary: #cb2b33;
+  --primary-foreground: #ffffff;
+  --brand-strong: #9e2127;
+  --brand-text: #fbadb1;
+  --accent: color-mix(in oklab, #f5424b 26%, transparent);
+  --accent-foreground: #fdd6d8;
+  --ring: #f88289;
 }
 
 @theme inline {
@@ -127,6 +341,13 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-cat-purple: var(--cat-purple);
+  --color-cat-cyan: var(--cat-cyan);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -135,6 +356,8 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-chart-muted: var(--chart-muted);
+  --color-warning-accent: var(--warning-accent);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -144,32 +367,41 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Direct brand utilities (bg-hdb-red, text-teal-600, …) */
+  /* Brand + neutral utilities the components reference directly */
   --color-hdb-red: var(--hdb-red);
   --color-hdb-red-hover: var(--hdb-red-hover);
-  --color-teal-900: var(--teal-900);
-  --color-teal-800: var(--teal-800);
-  --color-teal-600: var(--teal-600);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-text: var(--brand-text);
   --color-teal-50: var(--teal-50);
+  --color-teal-100: var(--teal-100);
+  --color-teal-200: var(--teal-200);
+  --color-teal-500: var(--teal-500);
+  --color-teal-600: var(--teal-600);
+  --color-teal-700: var(--teal-700);
+  --color-teal-800: var(--teal-800);
+  --color-teal-900: var(--teal-900);
   --color-ink: var(--ink);
   --color-ink-700: var(--ink-700);
   --color-ink-600: var(--ink-600);
   --color-ink-500: var(--ink-500);
+  --color-ink-300: var(--ink-300);
   --color-line: var(--line);
   --color-line-soft: var(--line-soft);
   --color-gray-50: var(--gray-50);
   --color-gray-100: var(--gray-100);
+  --color-gray-200: var(--gray-200);
+  --color-gray-300: var(--gray-300);
   --color-footer-bg: var(--footer-bg);
   --color-link-blue: var(--link-blue);
 
-  --font-sans: var(--font-hanken), "Hanken Grotesk", -apple-system,
+  --font-sans: var(--font-sgds), "Inter", system-ui, -apple-system,
     BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-heading: var(--font-sans);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: calc(var(--radius) - 4px); /* 4px → badges/tags */
+  --radius-md: calc(var(--radius) - 2px); /* 6px */
+  --radius-lg: var(--radius); /* 8px */
+  --radius-xl: calc(var(--radius) + 4px); /* 12px */
 
   /* Accessibility floor: never render text below 14px, even via text-xs */
   --text-xs: 0.875rem;
@@ -185,16 +417,20 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-size: 1.125rem; /* 18px body, per styleguide */
-    line-height: 1.75rem;
+    font-size: 1.0625rem; /* 17px body */
+    line-height: 1.7rem;
     -webkit-font-smoothing: antialiased;
   }
-  /* Strong, always-visible keyboard focus (a11y) */
+  /* SGDS focus: 2px ring in the brand colour */
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-ring;
   }
-  /* Text links underline on hover. Excludes anchors styled as buttons or
-     menu items (these carry a data-slot from the UI primitives). */
+  button:not(:disabled),
+  [role='button']:not(:disabled),
+  label[for],
+  summary {
+    cursor: pointer;
+  }
   a:not([data-slot]):hover {
     text-decoration: underline;
     text-underline-offset: 2px;
@@ -202,7 +438,6 @@
 }
 
 @layer components {
-  /* 1140px centred container with 16px gutters — matches the live site */
   .app-container {
     width: 100%;
     max-width: 1140px;

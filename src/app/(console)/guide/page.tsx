@@ -20,7 +20,7 @@ const QUICK_START = [
 const FAQ = [
   {
     q: 'Where do the answers come from?',
-    a: 'Every answer is generated only from documents in the HCSA knowledge base — policies, SOPs, email correspondence and financial reports. The assistant never uses outside information.',
+    a: 'Every answer is generated only from documents in the HCSA knowledge base: policies, SOPs, email correspondence and financial reports. The assistant never uses outside information.',
   },
   {
     q: 'What if the answer is not in the knowledge base?',

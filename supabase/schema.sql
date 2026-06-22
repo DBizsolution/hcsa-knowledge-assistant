@@ -85,3 +85,122 @@ create policy "documents readable by authenticated"
 drop policy if exists "chunks readable by authenticated" on public.chunks;
 create policy "chunks readable by authenticated"
   on public.chunks for select to authenticated using (true);
+
+-- ── Structured project datasets (relational mock corpus) ────────────────────
+-- Contractors → Projects → Permits / Inspections. Loaded by
+-- `pnpm ingest:structured`. Categorical columns are normalised to UPPER_SNAKE
+-- on ingest; date columns are parsed to real dates so the NL→SQL path can do
+-- aggregations, joins and date arithmetic. No hard foreign keys — the mock data
+-- contains some orphan references, which we keep rather than drop.
+
+create table if not exists public.contractors (
+  contractor_id            text primary key,
+  name                     text,
+  contact_number           text,
+  company_address          text,
+  contract_start_date      date,
+  contractor_rating        text,   -- GOLD | SILVER | BRONZE | PLATINUM
+  sustainability_rating    text,   -- A_PLUS | A | B_PLUS | B | C_PLUS | C | UNRATED
+  financial_health_rating  text,   -- EXCELLENT | GOOD | FAIR | UNDER_REVIEW
+  engagement_status        text,   -- ACTIVE | INACTIVE | SUSPENDED | PENDING
+  completed_projects       int
+);
+
+create table if not exists public.projects (
+  project_id                text primary key,
+  name                      text,
+  contractor_id             text,  -- → contractors.contractor_id
+  start_date                date,
+  scheduled_completion_date date,
+  actual_completion_date    date,
+  status                    text,  -- PLANNING | PERMITTING | CONSTRUCTION | ON_HOLD | SUSPENDED | COMPLETED | CANCELLED
+  estimated_cost            numeric,
+  actual_cost               numeric
+);
+
+create table if not exists public.permits (
+  permit_id                 text primary key,
+  project_id                text,  -- source "Assignment ID" → projects.project_id
+  permit_type               text,
+  permit_category           text,
+  approval_date             date,
+  expiry_date               date,
+  permit_status             text,  -- APPROVED | PENDING | RENEWED | REVOKED | REJECTED | EXPIRED
+  permit_conditions         int,
+  conditions_met            int,
+  processing_fee            numeric
+);
+
+create table if not exists public.inspections (
+  inspection_id             text primary key,
+  project_id                text,  -- source "Case ID" → projects.project_id
+  inspection_date           date,
+  inspection_type           text,
+  inspector_company         text,
+  inspection_result         text,  -- PASS | FAIL | PASS_WITH_ADVISORY | CONDITIONAL_PASS
+  defects_found             int,
+  rectification_required    boolean,
+  rectification_deadline    date,
+  rectification_completed   boolean,
+  follow_up_inspection_date date,
+  inspection_cost           numeric
+);
+
+create index if not exists projects_contractor_idx on public.projects (contractor_id);
+create index if not exists permits_project_idx on public.permits (project_id);
+create index if not exists inspections_project_idx on public.inspections (project_id);
+
+alter table public.contractors enable row level security;
+alter table public.projects    enable row level security;
+alter table public.permits     enable row level security;
+alter table public.inspections enable row level security;
+
+do $$
+declare t text;
+begin
+  foreach t in array array['contractors', 'projects', 'permits', 'inspections'] loop
+    execute format('drop policy if exists "%s readable by authenticated" on public.%I', t, t);
+    execute format(
+      'create policy "%s readable by authenticated" on public.%I for select to authenticated using (true)',
+      t, t);
+  end loop;
+end $$;
+
+-- ── Read-only analytical query execution ────────────────────────────────────
+-- The chat route translates a natural-language question into a single SELECT
+-- and runs it here. Guarded to SELECT/WITH only, single statement, no DDL/DML,
+-- no system catalogs, with a statement timeout. Executable by service_role only
+-- (the server-side admin client). This is a controlled-query gateway, not an
+-- open SQL endpoint.
+create or replace function public.run_readonly_query(query_text text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  result jsonb;
+  cleaned text := btrim(query_text);
+begin
+  cleaned := regexp_replace(cleaned, ';\s*$', '');           -- drop one trailing ;
+  if cleaned !~* '^(select|with)\M' then
+    raise exception 'Only SELECT/WITH queries are permitted';
+  end if;
+  if cleaned ~ ';' then
+    raise exception 'Multiple statements are not permitted';
+  end if;
+  if cleaned ~* '\m(insert|update|delete|drop|alter|truncate|create|grant|revoke|comment|copy|merge|call|do|vacuum|analyze|reindex)\M' then
+    raise exception 'Only read-only queries are permitted';
+  end if;
+  if cleaned ~* '(pg_|information_schema)' then
+    raise exception 'System catalog access is not permitted';
+  end if;
+  perform set_config('statement_timeout', '5000', true);
+  execute format('select coalesce(jsonb_agg(t), ''[]''::jsonb) from (%s) as t', cleaned)
+    into result;
+  return result;
+end;
+$$;
+
+revoke all on function public.run_readonly_query(text) from public;
+grant execute on function public.run_readonly_query(text) to service_role;

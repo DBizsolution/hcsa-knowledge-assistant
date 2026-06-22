@@ -9,7 +9,7 @@ const highlights = [
   {
     icon: Search,
     title: 'Search every source at once',
-    body: 'Policies, SOPs, email correspondence and reports — one question, one answer.',
+    body: 'Policies, SOPs, email correspondence and reports: one question, one answer.',
   },
   {
     icon: FileCheck2,
@@ -19,7 +19,7 @@ const highlights = [
   {
     icon: ShieldCheck,
     title: 'Stays within your knowledge base',
-    body: 'The assistant never invents facts — if it isn’t in HCSA’s records, it says so.',
+    body: 'The assistant never invents facts. If it isn’t in HCSA’s records, it says so.',
   },
 ]
 
@@ -35,7 +35,7 @@ export default async function LoginPage({
   return (
     <div className="grid min-h-[calc(100dvh-2.5rem)] lg:grid-cols-2">
       {/* Brand / value panel */}
-      <section className="relative hidden flex-col justify-between overflow-hidden bg-teal-900 p-12 text-white lg:flex">
+      <section className="relative hidden flex-col justify-between overflow-hidden bg-primary p-12 text-primary-foreground lg:flex">
         <div
           aria-hidden
           className="absolute inset-0 opacity-20"

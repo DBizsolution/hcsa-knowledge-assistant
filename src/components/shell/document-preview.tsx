@@ -21,24 +21,24 @@ export type PreviewDocument = {
 
 const EXCERPTS: Record<string, string[]> = {
   policy: [
-    'Purpose & scope — This policy sets out the eligibility criteria, applicant obligations and assessment process for the programme, and applies to all registered contractors operating within HCSA jurisdiction.',
-    'Eligibility — Applicants must demonstrate a minimum 30% energy-reduction tier, with third-party audit verification required for any claim above the 35% threshold. Incomplete submissions are returned for rectification before assessment.',
-    'Review & appeals — Rejected applications may be reconsidered within 30 days where new substantiating evidence is provided. Each decision is recorded against the case reference and retained for audit.',
+    'Purpose & scope: This policy sets out the eligibility criteria, applicant obligations and assessment process for the programme, and applies to all registered contractors operating within HCSA jurisdiction.',
+    'Eligibility: Applicants must demonstrate a minimum 30% energy-reduction tier, with third-party audit verification required for any claim above the 35% threshold. Incomplete submissions are returned for rectification before assessment.',
+    'Review & appeals: Rejected applications may be reconsidered within 30 days where new substantiating evidence is provided. Each decision is recorded against the case reference and retained for audit.',
   ],
   sop: [
-    'Objective — This standard operating procedure defines the responsibilities, sequencing and safety controls for the activity, ensuring consistent and compliant execution across project sites.',
-    'Procedure — Site supervisors confirm permits and hazard assessments before commencement. Every control point is signed off and logged; deviations are escalated to the responsible officer for approval.',
-    'Records — Completed checklists and inspection findings are filed against the site reference and made available for periodic compliance review.',
+    'Objective: This standard operating procedure defines the responsibilities, sequencing and safety controls for the activity, ensuring consistent and compliant execution across project sites.',
+    'Procedure: Site supervisors confirm permits and hazard assessments before commencement. Every control point is signed off and logged; deviations are escalated to the responsible officer for approval.',
+    'Records: Completed checklists and inspection findings are filed against the site reference and made available for periodic compliance review.',
   ],
   email: [
-    'Subject: Reconsideration request — The contractor disputes the assessed reading and requests a review of the original determination, citing a revised measurement.',
-    'Response — The authority acknowledges receipt and sets out the documentation required to support reconsideration, including the third-party audit certificate and the corrected reduction figures.',
-    'Outcome — The thread is retained in the email repository and indexed by passage so that responses can be cited precisely in future queries.',
+    'Subject: Reconsideration request. The contractor disputes the assessed reading and requests a review of the original determination, citing a revised measurement.',
+    'Response: The authority acknowledges receipt and sets out the documentation required to support reconsideration, including the third-party audit certificate and the corrected reduction figures.',
+    'Outcome: The thread is retained in the email repository and indexed by passage so that responses can be cited precisely in future queries.',
   ],
   report: [
-    'Financial highlights — The statements present the financial position and operating results for the year, including the reported net deficit before government grant and the corresponding grant receipt.',
-    'Operational review — Development expenditure, dwelling units delivered and key programme outcomes are summarised, with comparatives against the prior financial year.',
-    'Notes — Accounting policies, significant estimates and audit observations are disclosed in the accompanying notes, which are indexed for retrieval alongside the primary statements.',
+    'Financial highlights: The statements present the financial position and operating results for the year, including the reported net deficit before government grant and the corresponding grant receipt.',
+    'Operational review: Development expenditure, dwelling units delivered and key programme outcomes are summarised, with comparatives against the prior financial year.',
+    'Notes: Accounting policies, significant estimates and audit observations are disclosed in the accompanying notes, which are indexed for retrieval alongside the primary statements.',
   ],
 }
 

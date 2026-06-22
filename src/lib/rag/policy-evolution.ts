@@ -74,9 +74,9 @@ export type PolicyEvolution = {
 
 const SUSTAINABLE_URBAN_DESIGN: PolicyEvolution = {
   key: 'sustainable-urban-design',
-  topic: 'Sustainable Urban Design — POL-UD-002 & SOP-UD-002',
+  topic: 'Sustainable Urban Design: POL-UD-002 & SOP-UD-002',
   summary:
-    'The Green Building & Sustainability Standards Policy (POL-UD-002) reached v3.2 on 15 Jan 2025, tightening renewable-energy thresholds and adding mandatory biodiversity requirements. Its companion procedure SOP-UD-002 (v2.4) operationalises it — but three clauses conflict, all resolved in the policy’s favour by SOP §10.1.',
+    'The Green Building & Sustainability Standards Policy (POL-UD-002) reached v3.2 on 15 Jan 2025, tightening renewable-energy thresholds and adding mandatory biodiversity requirements. Its companion procedure SOP-UD-002 (v2.4) operationalises it, but three clauses conflict, all resolved in the policy’s favour by SOP §10.1.',
   documents: [
     {
       code: 'POL-UD-002',
@@ -125,11 +125,11 @@ const SUSTAINABLE_URBAN_DESIGN: PolicyEvolution = {
     },
     {
       date: '15 January 2026',
-      version: '—',
+      version: '–',
       docCode: 'POL-UD-002',
       label: 'Annual review scheduled',
       summary:
-        'Review Date 15 Jan 2026 — annual policy review by the Sustainability & Environment Department (POL-UD-002 §10.1).',
+        'Review Date 15 Jan 2026: annual policy review by the Sustainability & Environment Department (POL-UD-002 §10.1).',
       kind: 'review',
     },
   ],
@@ -170,7 +170,7 @@ const SUSTAINABLE_URBAN_DESIGN: PolicyEvolution = {
       },
       resolution: {
         rule:
-          'POL-UD-002 governs — alternative compliance measures are mandatory on every exception.',
+          'POL-UD-002 governs: alternative compliance measures are mandatory on every exception.',
         docCode: 'SOP-UD-002',
         section: '§10.1',
       },
@@ -189,7 +189,7 @@ const SUSTAINABLE_URBAN_DESIGN: PolicyEvolution = {
         code: 'SOP-UD-002',
         section: '§5.2',
         quote:
-          'For projects <$10M, "15% renewable energy = 3 bonus points" — a compliance pathway that differs from the policy.',
+          'For projects <$10M, "15% renewable energy = 3 bonus points", a compliance pathway that differs from the policy.',
       },
       resolution: {
         rule:
@@ -215,7 +215,7 @@ const SUSTAINABLE_URBAN_DESIGN: PolicyEvolution = {
       },
       resolution: {
         rule:
-          'POL-UD-002 supersedes — the 25-day decision SLA governs; the SOP’s extra time covers implementation only.',
+          'POL-UD-002 supersedes: the 25-day decision SLA governs; the SOP’s extra time covers implementation only.',
         docCode: 'SOP-UD-002',
         section: '§10.1',
       },

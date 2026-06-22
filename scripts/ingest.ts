@@ -24,7 +24,7 @@ loadEnv({ path: '.env.local' })
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DEFAULT_CORPUS = path.resolve(
   __dirname,
-  '../../extracted/Mock Dataset for AI-Driven LLM Prototype',
+  '../../OneDrive_1_6-22-2026/Mock Dataset for AI-Driven LLM Prototype',
 )
 const CORPUS_DIR = process.env.CORPUS_DIR
   ? path.resolve(process.env.CORPUS_DIR)

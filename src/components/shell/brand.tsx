@@ -22,14 +22,17 @@ export function Brand({
   className,
   subtitle = true,
   href = '/chat',
+  onClick,
 }: {
   className?: string
   subtitle?: boolean
   href?: string
+  onClick?: () => void
 }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={cn(
         'flex items-center gap-3 font-normal no-underline',
         className,

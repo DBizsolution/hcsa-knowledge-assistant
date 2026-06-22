@@ -20,7 +20,7 @@ export function LoginForm({ redirectTo = '/chat' }: { redirectTo?: string }) {
     event.preventDefault()
 
     if (!isSupabaseConfigured) {
-      toast.info('Demo mode — Supabase is not configured. Opening the console.')
+      toast.info('Demo mode: Supabase is not configured. Opening the console.')
       router.push(redirectTo)
       return
     }

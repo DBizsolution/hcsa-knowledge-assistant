@@ -65,7 +65,7 @@ export function RoleSwitcher() {
                   className={cn(
                     'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors',
                     selected
-                      ? 'border-teal-600 bg-teal-600 text-white'
+                      ? 'border-teal-600 bg-teal-600 text-primary-foreground'
                       : 'border-ink-300 text-transparent',
                   )}
                 >

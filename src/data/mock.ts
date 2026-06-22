@@ -27,16 +27,16 @@ export type KbDocument = {
 }
 
 export const DOCUMENTS: KbDocument[] = [
-  { title: 'SOP-UD-002 — Urban Development Site Safety', type: 'sop', collection: 'SOPs & Policies', pages: 14, chunks: 34, status: 'indexed', updated: '12 Jun 2026' },
-  { title: 'SOP-CO-003 — Commercial Fit-out Approvals', type: 'sop', collection: 'SOPs & Policies', pages: 11, chunks: 24, status: 'indexed', updated: '12 Jun 2026' },
-  { title: 'POL-UD-002 — Eco Rebate Policy', type: 'policy', collection: 'SOPs & Policies', pages: 9, chunks: 19, status: 'indexed', updated: '10 Jun 2026' },
-  { title: 'POL-CO-003 — Tenant Compliance Policy', type: 'policy', collection: 'SOPs & Policies', pages: 9, chunks: 20, status: 'indexed', updated: '10 Jun 2026' },
+  { title: 'SOP-UD-002: Urban Development Site Safety', type: 'sop', collection: 'SOPs & Policies', pages: 14, chunks: 34, status: 'indexed', updated: '12 Jun 2026' },
+  { title: 'SOP-CO-003: Commercial Fit-out Approvals', type: 'sop', collection: 'SOPs & Policies', pages: 11, chunks: 24, status: 'indexed', updated: '12 Jun 2026' },
+  { title: 'POL-UD-002: Eco Rebate Policy', type: 'policy', collection: 'SOPs & Policies', pages: 9, chunks: 19, status: 'indexed', updated: '10 Jun 2026' },
+  { title: 'POL-CO-003: Tenant Compliance Policy', type: 'policy', collection: 'SOPs & Policies', pages: 9, chunks: 20, status: 'indexed', updated: '10 Jun 2026' },
   { title: 'HDB Annual Report FY2022/23', type: 'report', collection: 'Reports', pages: 188, chunks: 92, status: 'indexed', updated: '02 Jun 2026' },
   { title: 'HDB Annual Report FY2021/22', type: 'report', collection: 'Reports', pages: 176, chunks: 78, status: 'indexed', updated: '02 Jun 2026' },
   { title: 'HDB Financial Statements FY2022/23', type: 'report', collection: 'Reports', pages: 96, chunks: 140, status: 'indexed', updated: '02 Jun 2026' },
   { title: 'HDB Financial Statements FY2021/22', type: 'report', collection: 'Reports', pages: 95, chunks: 141, status: 'indexed', updated: '02 Jun 2026' },
   { title: 'Email Repository (55 messages)', type: 'email', collection: 'Email Repository', pages: 55, chunks: 232, status: 'indexed', updated: '15 Jun 2026' },
-  { title: 'Email 60 — Drainage variation request', type: 'email', collection: 'Email Repository', pages: 2, chunks: 4, status: 'processing', updated: '17 Jun 2026' },
+  { title: 'Email 60: Drainage variation request', type: 'email', collection: 'Email Repository', pages: 2, chunks: 4, status: 'processing', updated: '17 Jun 2026' },
 ]
 
 export const SOURCE_BREAKDOWN = [
@@ -60,7 +60,7 @@ export const USERS: AppUser[] = [
   { name: 'Rajan Kumar', email: 'rajan.kumar@hcsa.gov.pu', role: 'Knowledge officer', department: 'Health, Safety & Environment', status: 'active', lastActive: '1 hr ago' },
   { name: 'Siti Nurhaliza', email: 'siti.n@hcsa.gov.pu', role: 'Analyst', department: 'Development Projects', status: 'active', lastActive: 'Today, 08:40' },
   { name: 'Tan Boon Hwee', email: 'boonhwee.tan@hcsa.gov.pu', role: 'Knowledge officer', department: 'Sustainability & Environment', status: 'active', lastActive: 'Yesterday' },
-  { name: 'Aisha Rahman', email: 'aisha.rahman@hcsa.gov.pu', role: 'Viewer', department: 'Commercial Properties', status: 'invited', lastActive: '—' },
+  { name: 'Aisha Rahman', email: 'aisha.rahman@hcsa.gov.pu', role: 'Viewer', department: 'Commercial Properties', status: 'invited', lastActive: '–' },
   { name: 'Daniel Ong', email: 'daniel.ong@hcsa.gov.pu', role: 'Analyst', department: 'Development Projects', status: 'suspended', lastActive: '12 May 2026' },
 ]
 
@@ -81,7 +81,7 @@ export type Conversation = {
 
 export const CONVERSATIONS: Conversation[] = [
   { title: 'Eco rebate eligibility for contractors', preview: 'Eligibility starts at a 30% energy-reduction tier, with third-party audit verification above 35%…', source: 'Email Repository', messages: 6, date: 'Today, 10:24' },
-  { title: 'EcoRebate rejection — reconsideration', preview: 'Richard Tan (EcoFirm) was rejected on a 28% water-reduction reading and requested a review…', source: 'Email 1', messages: 5, date: 'Today, 09:02' },
+  { title: 'EcoRebate rejection: reconsideration', preview: 'Richard Tan (EcoFirm) was rejected on a 28% water-reduction reading and requested a review…', source: 'Email 1', messages: 5, date: 'Today, 09:02' },
   { title: 'HDB FY2022/23 net deficit', preview: 'HDB recorded a net deficit of $5,380m before a government grant of $5,389m…', source: 'HDB-AR-FY23', messages: 3, date: 'Yesterday' },
   { title: 'Penalties for compliance breaches', preview: 'Minor violations attract warnings and rectification; repeated breaches escalate to…', source: 'Email 32', messages: 4, date: 'Yesterday' },
   { title: 'Rebate calculation and caps', preview: 'The rebate is calculated at 15% of installation cost, capped at $8,000 for a Tier 2 reduction…', source: 'Email 24', messages: 5, date: '15 Jun 2026' },

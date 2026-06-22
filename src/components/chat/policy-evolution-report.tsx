@@ -33,7 +33,7 @@ const SEVERITY: Record<
   Contradiction['severity'],
   { label: string; dot: string }
 > = {
-  high: { label: 'Significant', dot: 'bg-hdb-red' },
+  high: { label: 'Significant', dot: 'bg-destructive' },
   medium: { label: 'Moderate', dot: 'bg-amber-500' },
   low: { label: 'Minor', dot: 'bg-ink-500/40' },
 }
@@ -60,21 +60,23 @@ function DocRef({ code }: { code: string }) {
 
 function Timeline({ events }: { events: TimelineEvent[] }) {
   return (
-    <ol className="relative space-y-4 pl-6">
+    <ol className="relative space-y-4">
+      {/* Connector line + dot markers share one axis at x=8px (left-2),
+          each centred on it with -translate-x-1/2. */}
       <span
-        className="absolute left-[7px] top-1 bottom-1 w-px bg-border"
+        className="pointer-events-none absolute left-2 top-2.5 bottom-2.5 w-px -translate-x-1/2 bg-border"
         aria-hidden
       />
       {events.map((event, index) => {
         const isReview = event.kind === 'review'
         const isBaseline = event.kind === 'baseline'
         return (
-          <li key={index} className="relative">
+          <li key={index} className="relative pl-8">
             <span
               className={cn(
-                'absolute -left-[22px] top-0.5 flex size-4 items-center justify-center rounded-full ring-4 ring-card',
+                'absolute left-2 top-0.5 flex size-4 -translate-x-1/2 items-center justify-center rounded-full ring-4 ring-background',
                 isReview
-                  ? 'bg-card text-teal-600'
+                  ? 'bg-background text-teal-600'
                   : isBaseline
                     ? 'bg-ink-500/25'
                     : 'bg-teal-600',
@@ -84,14 +86,16 @@ function Timeline({ events }: { events: TimelineEvent[] }) {
               {isReview ? (
                 <CalendarCheck className="size-3" />
               ) : (
-                !isBaseline && <CircleDot className="size-3 text-white" />
+                !isBaseline && (
+                  <CircleDot className="size-3 text-primary-foreground" />
+                )
               )}
             </span>
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
               <span className="text-sm font-bold text-ink-700">
                 {event.date}
               </span>
-              {event.version !== '—' && (
+              {event.version !== '–' && (
                 <span className="text-xs text-ink-500">v{event.version}</span>
               )}
               <span className="text-sm text-ink-600">· {event.label}</span>
@@ -161,7 +165,7 @@ function ContradictionCard({ item }: { item: Contradiction }) {
           aria-hidden
         />
         <p className="text-sm leading-snug text-ink-600">
-          <span className="font-bold text-ink-700">Resolved — </span>
+          <span className="font-bold text-ink-700">Resolved: </span>
           {item.resolution.rule}{' '}
           <span className="whitespace-nowrap text-ink-500">
             ({item.resolution.docCode} {item.resolution.section})
@@ -184,7 +188,7 @@ function ConflictSide({
   quote: string
 }) {
   return (
-    <div className="rounded-md bg-muted/50 p-2.5">
+    <div className="rounded-md border border-border bg-muted p-2.5">
       <p className="text-xs font-bold uppercase tracking-wider text-ink-500">
         {heading}
       </p>
@@ -284,7 +288,7 @@ export const PolicyEvolutionReport = forwardRef<
                     <span className="font-medium text-ink-700">
                       {citation.docCode}
                     </span>{' '}
-                    <span className="text-ink-500">{citation.section}</span> —{' '}
+                    <span className="text-ink-500">{citation.section}</span>,{' '}
                     {citation.quote}
                   </span>
                 </li>

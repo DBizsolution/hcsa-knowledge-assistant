@@ -1,4 +1,6 @@
-import type { Metadata } from 'next'
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
 import {
   UploadCloud,
   FileText,
@@ -7,28 +9,93 @@ import {
   FileBarChart,
   Mail,
   Scale,
+  type LucideIcon,
 } from 'lucide-react'
-import { PageContainer, PageHeader } from '@/components/shell/page'
+import { toast } from 'sonner'
+import { PageHeader } from '@/components/shell/page'
 import { DocumentPreview } from '@/components/shell/document-preview'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 
-export const metadata: Metadata = { title: 'File upload' }
+type UploadFile = {
+  name: string
+  size: string
+  type: string
+  icon: LucideIcon
+  state: string
+  progress: number
+}
 
-const RECENT = [
-  { name: 'SOP-UD-002 — Site Safety.pdf', size: '1.2 MB', type: 'SOP', icon: FileText, state: 'done', progress: 100 },
-  { name: 'Email 60 — Drainage variation.pdf', size: '180 KB', type: 'Email', icon: Mail, state: 'processing', progress: 64 },
-  { name: 'POL-UD-002 — Eco Rebate.pdf', size: '640 KB', type: 'Policy', icon: Scale, state: 'done', progress: 100 },
+const RECENT: UploadFile[] = [
+  { name: 'SOP-UD-002 - Site Safety.pdf', size: '1.2 MB', type: 'SOP', icon: FileText, state: 'done', progress: 100 },
+  { name: 'Email 60 - Drainage variation.pdf', size: '180 KB', type: 'Email', icon: Mail, state: 'processing', progress: 64 },
+  { name: 'POL-UD-002 - Eco Rebate.pdf', size: '640 KB', type: 'Policy', icon: Scale, state: 'done', progress: 100 },
   { name: 'HDB FS-23.pdf', size: '4.8 MB', type: 'Report', icon: FileBarChart, state: 'done', progress: 100 },
 ]
 
 const STEPS = ['Upload', 'Extract text', 'Chunk', 'Embed', 'Index']
 
 export default function UploadPage() {
+  const [files, setFiles] = useState<UploadFile[]>(RECENT)
+  const [dragging, setDragging] = useState(false)
+  const intervals = useRef<ReturnType<typeof setInterval>[]>([])
+
+  useEffect(() => {
+    return () => {
+      intervals.current.forEach((id) => clearInterval(id))
+    }
+  }, [])
+
+  const startUpload = () => {
+    const name = `New upload ${files.length + 1}.pdf`
+    const file: UploadFile = {
+      name,
+      size: '1.0 MB',
+      type: 'Report',
+      icon: FileText,
+      state: 'processing',
+      progress: 0,
+    }
+    setFiles((prev) => [file, ...prev])
+
+    const id = setInterval(() => {
+      setFiles((prev) =>
+        prev.map((item) => {
+          if (item.name !== name) return item
+          const next = item.progress + 20
+          if (next >= 100) {
+            clearInterval(id)
+            intervals.current = intervals.current.filter((entry) => entry !== id)
+            toast.success(`${name} indexed`)
+            return { ...item, progress: 100, state: 'done' }
+          }
+          return { ...item, progress: next }
+        }),
+      )
+    }, 400)
+    intervals.current.push(id)
+  }
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault()
+    setDragging(false)
+    startUpload()
+  }
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault()
+    setDragging(true)
+  }
+
+  const handleDragLeave = (event: React.DragEvent) => {
+    event.preventDefault()
+    setDragging(false)
+  }
+
   return (
-    <PageContainer>
+    <>
       <PageHeader
         title="File upload"
         description="Add new documents to the knowledge base. Files are parsed, chunked, embedded and indexed automatically."
@@ -39,7 +106,16 @@ export default function UploadPage() {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardContent className="p-6">
-              <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-line-soft bg-muted/40 px-6 py-14 text-center">
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`flex flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-14 text-center transition-colors ${
+                  dragging
+                    ? 'border-teal-600 bg-teal-50/40'
+                    : 'border-line-soft bg-muted/40'
+                }`}
+              >
                 <span className="flex size-14 items-center justify-center rounded-full bg-teal-50 text-teal-700">
                   <UploadCloud className="size-7" />
                 </span>
@@ -49,7 +125,10 @@ export default function UploadPage() {
                 <p className="mt-1 text-sm text-ink-500">
                   PDF, DOCX, TXT, XLSX · up to 50 MB per file
                 </p>
-                <Button className="mt-5 gap-2 bg-primary text-primary-foreground hover:bg-hdb-red-hover">
+                <Button
+                  onClick={startUpload}
+                  className="mt-5 gap-2 bg-primary text-primary-foreground hover:bg-hdb-red-hover"
+                >
                   <UploadCloud className="size-4" />
                   Browse files
                 </Button>
@@ -62,7 +141,7 @@ export default function UploadPage() {
               <CardTitle>Recent uploads</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {RECENT.map((file) => (
+              {files.map((file) => (
                 <DocumentPreview
                   key={file.name}
                   doc={{
@@ -137,6 +216,6 @@ export default function UploadPage() {
           </CardContent>
         </Card>
       </div>
-    </PageContainer>
+    </>
   )
 }

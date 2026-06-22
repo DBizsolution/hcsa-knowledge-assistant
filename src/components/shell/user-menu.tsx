@@ -53,7 +53,7 @@ export function UserMenu({ email }: { email: string }) {
         }
       >
         <Avatar className="size-8">
-          <AvatarFallback className="bg-teal-800 text-sm text-white">
+          <AvatarFallback className="bg-primary text-sm text-primary-foreground">
             {initials(email)}
           </AvatarFallback>
         </Avatar>
@@ -91,7 +91,7 @@ export function UserMenu({ email }: { email: string }) {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onSelect={handleSignOut}
-            className="gap-2.5 rounded-lg px-2.5 py-2 font-medium text-hdb-red focus:bg-[color-mix(in_oklch,var(--hdb-red),white_90%)] focus:text-hdb-red"
+            className="gap-2.5 rounded-lg px-2.5 py-2 font-medium text-destructive focus:bg-[color-mix(in_oklch,var(--destructive),var(--background)_90%)] focus:text-destructive"
           >
             <LogOut className="size-4" />
             Sign out

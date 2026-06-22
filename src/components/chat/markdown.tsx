@@ -52,7 +52,7 @@ function renderInline(
               key={`${key}-${ref}`}
               type="button"
               onClick={() => onCitation?.(ref)}
-              className="inline-flex size-4 items-center justify-center rounded-full bg-teal-50 text-[11px] font-semibold leading-none text-teal-700 transition-colors hover:bg-teal-600 hover:text-white"
+              className="inline-flex size-5 items-center justify-center rounded-full bg-teal-50 text-xs font-semibold leading-none text-teal-700 transition-colors hover:bg-teal-600 hover:text-primary-foreground"
               aria-label={`Show source ${ref}`}
             >
               {ref}

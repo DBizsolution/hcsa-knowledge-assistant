@@ -1,11 +1,15 @@
 import type { Metadata } from 'next'
-import { Hanken_Grotesk } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
+import { ThemeProvider } from '@/components/theme/theme-provider'
+import { BrandThemeScript } from '@/components/theme/brand-theme-script'
 import './globals.css'
 
-const hanken = Hanken_Grotesk({
-  variable: '--font-hanken',
+// SGDS uses Inter across body + headings (weights 300/400/600/700).
+const inter = Inter({
+  variable: '--font-sgds',
   subsets: ['latin'],
+  weight: ['300', '400', '600', '700'],
   display: 'swap',
 })
 
@@ -24,10 +28,19 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${hanken.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
+    >
+      <head>
+        <BrandThemeScript />
+      </head>
       <body className="flex min-h-full flex-col">
-        {children}
-        <Toaster richColors position="top-right" />
+        <ThemeProvider>
+          {children}
+          <Toaster richColors position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   )
