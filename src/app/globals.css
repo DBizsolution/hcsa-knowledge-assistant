@@ -131,14 +131,14 @@
 
   --radius: 0.5rem; /* SGDS md = 8px (buttons/inputs/cards) */
 
-  /* Default brand (SGDS purple) — no-JS fallback */
-  --primary: #6b4feb;
+  /* Default brand (cyan) — no-JS fallback */
+  --primary: #00758d;
   --primary-foreground: #ffffff;
-  --brand-strong: #523abc;
-  --brand-text: #523abc;
-  --accent: #f4f2fe;
-  --accent-foreground: #3c2b8a;
-  --ring: #6b4feb;
+  --brand-strong: #005971;
+  --brand-text: #005971;
+  --accent: #e0f7fe;
+  --accent-foreground: #004355;
+  --ring: #00758d;
 }
 
 .dark {
