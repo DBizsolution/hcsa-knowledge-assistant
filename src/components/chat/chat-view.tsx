@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
 import { toast } from 'sonner'
@@ -10,11 +10,12 @@ import { Button } from '@/components/ui/button'
 import { BrandMark } from '@/components/shell/brand'
 import { usePersona } from '@/lib/use-persona-store'
 import { useChatSessionStore } from '@/lib/use-chat-session-store'
-import { personaById } from '@/lib/personas'
+import { personaById, type PersonaId } from '@/lib/personas'
 import type { StoredConversation } from '@/data/conversations'
 import { ChatMessage } from './chat-message'
 import { ChatComposer } from './chat-composer'
 import { PersonaSelector } from './persona-selector'
+import { AgentSwitchDivider } from './agent-switch-divider'
 import { CATEGORIES, type Category } from './suggestions'
 
 /** Turn a stored transcript into UIMessages the chat view can render. */
@@ -26,6 +27,8 @@ function conversationToMessages(conversation: StoredConversation): UIMessage[] {
   }))
 }
 
+type SwitchMarker = { id: string; personaId: PersonaId; afterMessageId: string }
+
 export function ChatView() {
   const [input, setInput] = useState('')
   const { persona, setPersona } = usePersona()
@@ -36,6 +39,7 @@ export function ChatView() {
   const setCurrentTitle = useChatSessionStore((state) => state.setCurrentTitle)
   const pending = useChatSessionStore((state) => state.pending)
   const consumePending = useChatSessionStore((state) => state.consumePending)
+  const startNewChat = useChatSessionStore((state) => state.startNewChat)
 
   const {
     messages,
@@ -55,6 +59,15 @@ export function ChatView() {
     },
   })
 
+  const [switchMarkers, setSwitchMarkers] = useState<SwitchMarker[]>([])
+  const [dismissedNudges, setDismissedNudges] = useState<Set<string>>(new Set())
+  const prevPersona = useRef(persona)
+  const skipNextSwitch = useRef(false)
+  const markerCounter = useRef(0)
+  const messagesRef = useRef(messages)
+  // eslint-disable-next-line react-hooks/refs
+  messagesRef.current = messages
+
   const busy = status === 'submitted' || status === 'streaming'
 
   // Clear the conversation when a new chat is started from the sidebar or logo.
@@ -64,15 +77,45 @@ export function ChatView() {
     firstReset.current = resetKey
     setMessages([])
     setInput('')
+    setSwitchMarkers([])
+    setDismissedNudges(new Set())
   }, [resetKey, setMessages])
 
   // Load a past conversation when one is opened from history (sidebar or page).
   useEffect(() => {
     if (!pending) return
     setMessages(conversationToMessages(pending))
+    if (pending.persona !== prevPersona.current) {
+      skipNextSwitch.current = true
+    }
     setPersona(pending.persona)
     consumePending()
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSwitchMarkers([])
+    setDismissedNudges(new Set())
   }, [pending, setMessages, setPersona, consumePending])
+
+  // Mark an agent switch in the transcript when the persona changes mid-chat.
+  // Markers are UI-only and never sent to the model.
+  useEffect(() => {
+    if (persona === prevPersona.current) return
+    prevPersona.current = persona
+    if (skipNextSwitch.current) {
+      skipNextSwitch.current = false
+      return
+    }
+    const msgs = messagesRef.current
+    if (msgs.length === 0) return
+    const afterMessageId = msgs[msgs.length - 1].id
+    const id = `switch-${(markerCounter.current += 1)}`
+    setSwitchMarkers((markers) => {
+      const last = markers[markers.length - 1]
+      if (last && last.afterMessageId === afterMessageId) {
+        return [...markers.slice(0, -1), { id, personaId: persona, afterMessageId }]
+      }
+      return [...markers, { id, personaId: persona, afterMessageId }]
+    })
+  }, [persona])
 
   // Scroll once per turn — pin the new question near the top so the answer
   // streams into the space below. Never scroll on streaming tokens or on
@@ -110,18 +153,44 @@ export function ChatView() {
             <EmptyState persona={persona} onPick={submit} />
           ) : (
             <div className="space-y-6">
-              {messages.map((message, index) => (
-                <ChatMessage
-                  key={message.id}
-                  message={message}
-                  isStreaming={
-                    busy &&
-                    index === messages.length - 1 &&
-                    message.role === 'assistant'
-                  }
-                  onFollowUp={submit}
-                />
-              ))}
+              {messages.map((message, index) => {
+                const markers = switchMarkers.filter(
+                  (marker) => marker.afterMessageId === message.id,
+                )
+                const lastMarkerId =
+                  switchMarkers[switchMarkers.length - 1]?.id
+                const lastMessageId = messages[messages.length - 1]?.id
+                return (
+                  <Fragment key={message.id}>
+                    <ChatMessage
+                      message={message}
+                      isStreaming={
+                        busy &&
+                        index === messages.length - 1 &&
+                        message.role === 'assistant'
+                      }
+                      onFollowUp={submit}
+                    />
+                    {markers.map((marker) => (
+                      <AgentSwitchDivider
+                        key={marker.id}
+                        personaId={marker.personaId}
+                        showNudge={
+                          marker.id === lastMarkerId &&
+                          marker.afterMessageId === lastMessageId &&
+                          !dismissedNudges.has(marker.id)
+                        }
+                        onNewChat={startNewChat}
+                        onDismiss={() =>
+                          setDismissedNudges((prev) =>
+                            new Set(prev).add(marker.id),
+                          )
+                        }
+                      />
+                    ))}
+                  </Fragment>
+                )
+              })}
               {error && (
                 <div className="flex flex-wrap items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
                   <p className="text-sm text-destructive">
