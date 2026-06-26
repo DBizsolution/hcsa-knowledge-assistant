@@ -5,24 +5,13 @@ import { FileText, Mail, Scale, FileBarChart, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import type { ChatSource } from './types'
+import { formatContent } from './format-content'
 
 const ICONS: Record<string, typeof FileText> = {
   policy: Scale,
   sop: FileText,
   email: Mail,
   report: FileBarChart,
-}
-
-/** Strip angle-bracket tokens (<addr>, <mailto:…>) and email header lines. */
-function formatContent(raw: string, type: string) {
-  let text = raw.replace(/<[^>]+>/g, ' ')
-  if (type === 'email') {
-    text = text.replace(
-      /^\s*(from|to|cc|bcc|subject|date|sent|reply-to|importance)\s*:.*$/gim,
-      ' ',
-    )
-  }
-  return text.replace(/\s+/g, ' ').trim()
 }
 
 export const SourceCard = forwardRef<
