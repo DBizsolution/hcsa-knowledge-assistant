@@ -32,28 +32,32 @@ export function PersonaSelector({
   const ActiveIcon = active.icon
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-2.5 py-1.5 text-sm font-medium text-ink-700 transition hover:bg-muted"
-            />
-          }
-        >
-          <span
-            className={cn(
-              'flex size-6 items-center justify-center rounded-md',
-              active.chipClass,
-            )}
+    <div className="flex flex-wrap items-end gap-x-3 gap-y-1.5">
+      <div className="flex flex-col gap-1">
+        <span className="px-0.5 text-xs font-semibold uppercase tracking-wide text-ink-500">
+          Agent
+        </span>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <button
+                type="button"
+                className="inline-flex items-center gap-2.5 rounded-xl border border-border bg-card px-3 py-2 text-sm font-semibold text-ink-700 shadow-sm transition hover:bg-muted hover:shadow"
+              />
+            }
           >
-            <ActiveIcon className="size-3.5" aria-hidden />
-          </span>
-          {active.label}
-          <ChevronDown className="size-4 text-ink-500" aria-hidden />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-80 p-1.5">
+            <span
+              className={cn(
+                'flex size-7 items-center justify-center rounded-lg',
+                active.chipClass,
+              )}
+            >
+              <ActiveIcon className="size-4" aria-hidden />
+            </span>
+            {active.label}
+            <ChevronDown className="size-4 text-ink-500" aria-hidden />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-80 p-1.5">
           <DropdownMenuGroup>
             <DropdownMenuLabel className="px-2 py-1.5 text-xs leading-relaxed text-ink-500">
               Choose an agent: answers stay within its authorised scope
@@ -93,8 +97,9 @@ export function PersonaSelector({
               </DropdownMenuItem>
             )
           })}
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       <div className="flex items-center gap-1.5">
         <span className="text-xs text-ink-500">Scope:</span>
