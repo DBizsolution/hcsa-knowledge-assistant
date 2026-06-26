@@ -17,6 +17,7 @@ import {
   buildSourceDocument,
   type SourceDocBlock,
 } from '@/data/source-documents'
+import { formatPassage } from './format-content'
 import type { ChatSource } from './types'
 
 function Block({ block }: { block: SourceDocBlock }): ReactElement {
@@ -29,11 +30,15 @@ function Block({ block }: { block: SourceDocBlock }): ReactElement {
       )
     case 'subheading':
       return (
-        <h4 className="mt-4 text-sm font-semibold text-ink-700">{block.text}</h4>
+        <h4 className="mt-4 text-sm font-semibold text-ink-700">
+          {block.text}
+        </h4>
       )
     case 'para':
       return (
-        <p className="mt-2 text-sm leading-relaxed text-ink-600">{block.text}</p>
+        <p className="mt-2 text-sm leading-relaxed text-ink-600">
+          {block.text}
+        </p>
       )
     case 'list':
       return (
@@ -82,8 +87,8 @@ function Block({ block }: { block: SourceDocBlock }): ReactElement {
           <p className="text-xs font-bold uppercase tracking-wide text-teal-800">
             Cited passage
           </p>
-          <p className="mt-1 text-sm leading-relaxed text-ink-700">
-            {block.text}
+          <p className="mt-1 whitespace-pre-line text-sm leading-relaxed text-ink-700">
+            {formatPassage(block.text)}
           </p>
         </div>
       )
@@ -102,15 +107,15 @@ export function SourceDocumentDialog({
   return (
     <Dialog>
       <DialogTrigger render={trigger} />
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <TypeBadge type={doc.sourceType} />
           <DialogTitle className="text-lg leading-snug text-ink-700">
             {doc.title}
           </DialogTitle>
           <DialogDescription>
-            Representative view of an indexed HCSA source, with the cited passage
-            highlighted.
+            Representative view of an indexed HCSA source, with the cited
+            passage highlighted.
           </DialogDescription>
         </DialogHeader>
 
@@ -133,8 +138,8 @@ export function SourceDocumentDialog({
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="max-w-sm text-xs text-ink-500">
-            Representative reconstruction of the indexed source. The full document
-            opens in the source system.
+            Representative reconstruction of the indexed source. The full
+            document opens in the source system.
           </p>
           <Button
             type="button"

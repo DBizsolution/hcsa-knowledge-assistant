@@ -108,14 +108,12 @@ export default function AnalyticsPage() {
 
         <Card className="lg:col-span-3">
           <CardContent className="pt-6">
-            {/* The shared chat result view, with its top border tucked under the card padding */}
-            <div className="-mt-5">
-              <StructuredResultView
-                key={selected.key}
-                data={selected}
-                onFollowUp={(prompt) => run(prompt)}
-              />
-            </div>
+            <StructuredResultView
+              key={selected.key}
+              data={selected}
+              onFollowUp={(prompt) => run(prompt)}
+              bare
+            />
           </CardContent>
         </Card>
       </div>

@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { UserPlus, Users, ShieldCheck, UserCog, Search, MoreHorizontal } from 'lucide-react'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 import { PageHeader } from '@/components/shell/page'
 import { StatCard } from '@/components/shell/stat-card'
 import { Button } from '@/components/ui/button'
@@ -50,6 +51,20 @@ const STATUS_BADGE: Record<string, string> = {
 }
 
 const ROLES: AppUser['role'][] = ['Administrator', 'Knowledge officer', 'Analyst', 'Viewer']
+
+const rolePillClass = (active: boolean) =>
+  cn(
+    'inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition',
+    active
+      ? 'border-primary bg-[color-mix(in_oklch,var(--primary),var(--background)_92%)] text-ink-700'
+      : 'border-border text-ink-600 hover:border-line-soft hover:bg-muted/50',
+  )
+
+const rolePillCountClass = (active: boolean) =>
+  cn(
+    'rounded-full px-1.5 py-0.5 text-xs font-semibold tabular-nums',
+    active ? 'bg-primary/15 text-primary' : 'bg-muted text-ink-500',
+  )
 
 function initials(name: string) {
   return name
@@ -195,55 +210,45 @@ export default function UsersPage() {
         <StatCard label="Active today" value="27" icon={UserCog} hint="last 24 hours" />
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+      <div className="mt-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Roles</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {ROLE_SUMMARY.map((roleItem) => (
-              <div key={roleItem.role} className="rounded-lg border border-border p-3">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-ink-700">{roleItem.role}</span>
-                  <Badge variant="secondary" className="bg-muted text-ink-600">
-                    {roleItem.count}
-                  </Badge>
-                </div>
-                <p className="mt-1 text-sm text-ink-500">{roleItem.scope}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-2">
           <CardHeader className="gap-3">
             <CardTitle>Users</CardTitle>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <div className="relative flex-1">
-                <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-500" />
-                <Input
-                  className="pl-8"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search name, email, department…"
-                />
-              </div>
-              <Select
-                value={roleFilter}
-                onValueChange={(value) => setRoleFilter(value ?? 'all')}
+            <div className="relative">
+              <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-500" />
+              <Input
+                className="pl-8"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search name, email, department…"
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setRoleFilter('all')}
+                className={rolePillClass(roleFilter === 'all')}
               >
-                <SelectTrigger className="sm:w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All roles</SelectItem>
-                  {ROLES.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                All roles
+                <span className={rolePillCountClass(roleFilter === 'all')}>
+                  {users.length}
+                </span>
+              </button>
+              {ROLE_SUMMARY.map((roleItem) => {
+                const active = roleFilter === roleItem.role
+                return (
+                  <button
+                    key={roleItem.role}
+                    type="button"
+                    onClick={() => setRoleFilter(roleItem.role)}
+                    title={roleItem.scope}
+                    className={rolePillClass(active)}
+                  >
+                    {roleItem.role}
+                    <span className={rolePillCountClass(active)}>{roleItem.count}</span>
+                  </button>
+                )
+              })}
             </div>
           </CardHeader>
           <CardContent className="px-0">

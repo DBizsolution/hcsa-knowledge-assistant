@@ -1,12 +1,19 @@
 'use client'
 
-import { forwardRef, useState } from 'react'
-import { FileText, Mail, Scale, FileBarChart, ChevronDown, Maximize2 } from 'lucide-react'
+import { forwardRef, useEffect, useState } from 'react'
+import {
+  FileText,
+  Mail,
+  Scale,
+  FileBarChart,
+  ChevronDown,
+  Maximize2,
+} from 'lucide-react'
 import { SourceDocumentDialog } from './source-document-dialog'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import type { ChatSource } from './types'
-import { formatContent } from './format-content'
+import { formatContent, formatPassage } from './format-content'
 
 const ICONS: Record<string, typeof FileText> = {
   policy: Scale,
@@ -20,9 +27,16 @@ export const SourceCard = forwardRef<
   { source: ChatSource; highlighted?: boolean }
 >(function SourceCard({ source, highlighted }, ref) {
   const [open, setOpen] = useState(false)
+  // A citation click highlights the card briefly; latch it open so it stays
+  // expanded after the highlight fades, until the user collapses it.
+  useEffect(() => {
+    if (highlighted) setOpen(true)
+  }, [highlighted])
   const expanded = open || Boolean(highlighted)
   const Icon = ICONS[source.sourceType] ?? FileText
-  const content = formatContent(source.content, source.sourceType)
+  const content = formatPassage(
+    formatContent(source.content, source.sourceType),
+  )
 
   return (
     <div
@@ -65,7 +79,9 @@ export const SourceCard = forwardRef<
 
       {expanded && (
         <div className="border-t border-border px-2.5 py-2.5">
-          <p className="text-sm leading-6 text-ink-600">{content}</p>
+          <p className="whitespace-pre-line text-sm leading-6 text-ink-600">
+            {content}
+          </p>
           <p className="mt-1.5 text-xs text-ink-500">
             {source.sourcePath} · passage {source.chunkIndex + 1}
           </p>

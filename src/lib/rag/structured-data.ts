@@ -84,7 +84,7 @@ const PERMITS_EXPIRED_2024: StructuredResult = {
       trend: { direction: 'up', label: '+12% vs 2023' },
     },
     {
-      label: 'Expired & not yet renewed',
+      label: 'Not yet renewed',
       value: '38',
       sub: '27% of expiries',
       trend: { direction: 'up', label: '+6 vs 2023' },

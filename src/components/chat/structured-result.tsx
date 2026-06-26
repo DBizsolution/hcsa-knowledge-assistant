@@ -11,19 +11,14 @@ import {
   Minus,
   ChevronDown,
   ChevronsUpDown,
+  ChevronLeft,
+  ChevronRight,
   Download,
   Quote,
   Sigma,
 } from 'lucide-react'
 import { toast } from 'sonner'
-import {
-  Bar,
-  BarChart as RBarChart,
-  CartesianGrid,
-  Cell,
-  LabelList,
-  XAxis,
-} from 'recharts'
+import { Bar, BarChart as RBarChart, Cell, LabelList, XAxis } from 'recharts'
 import { cn } from '@/lib/utils'
 import {
   ChartContainer,
@@ -54,26 +49,26 @@ function MetricCard({ metric }: { metric: StructuredMetric }) {
   const TrendIcon = metric.trend ? TREND_ICON[metric.trend.direction] : null
   return (
     <div className="rounded-lg border border-border bg-card p-3">
-      <p className="text-xs font-medium text-ink-500">{metric.label}</p>
+      <p className="truncate text-xs font-medium text-ink-500">
+        {metric.label}
+      </p>
       <p className="mt-1 text-2xl font-bold tabular-nums text-ink-700">
         {metric.value}
       </p>
-      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
-        {metric.sub && <span className="text-xs text-ink-500">{metric.sub}</span>}
-        {metric.trend && TrendIcon && (
-          <span
-            className={cn(
-              'inline-flex items-center gap-0.5 text-xs font-medium',
-              metric.trend.direction === 'up' && 'text-hdb-red',
-              metric.trend.direction === 'down' && 'text-teal-700',
-              metric.trend.direction === 'flat' && 'text-ink-500',
-            )}
-          >
-            <TrendIcon className="size-3" aria-hidden />
-            {metric.trend.label}
-          </span>
-        )}
-      </div>
+      {metric.sub && <p className="mt-1 text-xs text-ink-500">{metric.sub}</p>}
+      {metric.trend && TrendIcon && (
+        <p
+          className={cn(
+            'mt-0.5 inline-flex items-center gap-0.5 text-xs font-medium',
+            metric.trend.direction === 'up' && 'text-hdb-red',
+            metric.trend.direction === 'down' && 'text-teal-700',
+            metric.trend.direction === 'flat' && 'text-ink-500',
+          )}
+        >
+          <TrendIcon className="size-3" aria-hidden />
+          {metric.trend.label}
+        </p>
+      )}
     </div>
   )
 }
@@ -84,7 +79,9 @@ function BarChart({ bars, unit }: { bars: ChartBar[]; unit?: string }) {
     top: bar.display ?? String(bar.value),
   }))
   const config = {
-    value: { label: unit ? unit.replace(/^\w/, (c) => c.toUpperCase()) : 'Value' },
+    value: {
+      label: unit ? unit.replace(/^\w/, (c) => c.toUpperCase()) : 'Value',
+    },
   } satisfies ChartConfig
 
   return (
@@ -95,7 +92,6 @@ function BarChart({ bars, unit }: { bars: ChartBar[]; unit?: string }) {
           data={data}
           margin={{ top: 24, right: 8, left: 8, bottom: 0 }}
         >
-          <CartesianGrid vertical={false} strokeDasharray="3 3" />
           <XAxis
             dataKey="label"
             tickLine={false}
@@ -122,13 +118,17 @@ function BarChart({ bars, unit }: { bars: ChartBar[]; unit?: string }) {
         </RBarChart>
       </ChartContainer>
       {unit && (
-        <p className="mt-2 text-right text-xs text-ink-500">Figures in {unit}</p>
+        <p className="mt-2 text-right text-xs text-ink-500">
+          Figures in {unit}
+        </p>
       )}
     </div>
   )
 }
 
 type SortState = { key: string; dir: 'asc' | 'desc' } | null
+
+const PAGE_SIZE = 20
 
 function numericValue(raw: string | number): number {
   if (typeof raw === 'number') return raw
@@ -146,6 +146,7 @@ function ResultTable({
   note?: string
 }) {
   const [sort, setSort] = useState<SortState>(null)
+  const [page, setPage] = useState(0)
 
   const sorted = useMemo(() => {
     if (!sort) return rows
@@ -162,7 +163,15 @@ function ResultTable({
     return copy
   }, [rows, columns, sort])
 
+  // Page through long results 20 rows at a time; clamp so a stale page never
+  // falls past the end after sorting or a new result.
+  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount - 1)
+  const start = currentPage * PAGE_SIZE
+  const paged = sorted.slice(start, start + PAGE_SIZE)
+
   function toggleSort(key: string) {
+    setPage(0)
     setSort((prev) =>
       prev?.key === key
         ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
@@ -201,7 +210,10 @@ function ResultTable({
                       aria-hidden
                     />
                   ) : (
-                    <ChevronsUpDown className="size-3 text-ink-500/50" aria-hidden />
+                    <ChevronsUpDown
+                      className="size-3 text-ink-500/50"
+                      aria-hidden
+                    />
                   )}
                 </button>
               </th>
@@ -209,31 +221,65 @@ function ResultTable({
           </tr>
         </thead>
         <tbody>
-          {sorted.map((row, index) => (
-            <tr
-              key={index}
-              className="border-b border-border last:border-0 even:bg-muted/20"
-            >
-              {columns.map((column) => (
-                <td
-                  key={column.key}
-                  className={cn(
-                    'px-3 py-2 text-ink-600',
-                    column.numeric && 'text-right tabular-nums',
-                    index === 0 && 'font-medium text-ink-700',
-                  )}
-                >
-                  {row[column.key]}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {paged.map((row, index) => {
+            const globalIndex = start + index
+            return (
+              <tr
+                key={globalIndex}
+                className="border-b border-border last:border-0 even:bg-muted/20"
+              >
+                {columns.map((column) => (
+                  <td
+                    key={column.key}
+                    className={cn(
+                      'px-3 py-2 text-ink-600',
+                      column.numeric && 'text-right tabular-nums',
+                      globalIndex === 0 && 'font-medium text-ink-700',
+                    )}
+                  >
+                    {row[column.key]}
+                  </td>
+                ))}
+              </tr>
+            )
+          })}
         </tbody>
       </table>
       {note && (
         <p className="border-t border-border bg-muted/30 px-3 py-1.5 text-xs text-ink-500">
           {note}
         </p>
+      )}
+      {sorted.length > PAGE_SIZE && (
+        <div className="flex items-center justify-between gap-3 border-t border-border bg-muted/30 px-3 py-1.5 text-xs text-ink-500">
+          <span>
+            Showing {start + 1}–{Math.min(start + PAGE_SIZE, sorted.length)} of{' '}
+            {sorted.length}
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setPage(currentPage - 1)}
+              disabled={currentPage === 0}
+              aria-label="Previous page"
+              className="flex size-6 items-center justify-center rounded-md text-ink-600 transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+            >
+              <ChevronLeft className="size-4" aria-hidden />
+            </button>
+            <span className="tabular-nums">
+              Page {currentPage + 1} of {pageCount}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage(currentPage + 1)}
+              disabled={currentPage >= pageCount - 1}
+              aria-label="Next page"
+              className="flex size-6 items-center justify-center rounded-md text-ink-600 transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
+            >
+              <ChevronRight className="size-4" aria-hidden />
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
@@ -251,13 +297,41 @@ const KIND_META: Record<
 
 export const StructuredResultView = forwardRef<
   HTMLDivElement,
-  { data: StructuredResult; onFollowUp?: (prompt: string) => void }
->(function StructuredResultView({ data, onFollowUp }, ref) {
+  {
+    data: StructuredResult
+    onFollowUp?: (prompt: string) => void
+    bare?: boolean
+  }
+>(function StructuredResultView({ data, onFollowUp, bare }, ref) {
   const [explainOpen, setExplainOpen] = useState(false)
   const kind = KIND_META[data.kind]
 
+  // A single-value answer (e.g. "how many permits expired") arrives as a 1-row
+  // table; surface it as a metric card instead. The underlying table is kept
+  // for CSV export but not rendered when it would just repeat the number.
+  const derivedMetrics: StructuredMetric[] | undefined =
+    !data.metrics?.length &&
+    data.kind === 'metric' &&
+    data.table?.rows.length === 1 &&
+    data.table.columns.length <= 3
+      ? data.table.columns.map((column) => {
+          const value = data.table!.rows[0][column.key]
+          return {
+            label: column.label,
+            value:
+              typeof value === 'number'
+                ? value.toLocaleString()
+                : String(value),
+          }
+        })
+      : undefined
+  const metrics = data.metrics?.length ? data.metrics : derivedMetrics
+
   return (
-    <div ref={ref} className="space-y-4 border-t border-border pt-5">
+    <div
+      ref={ref}
+      className={cn('space-y-4', !bare && 'border-t border-border pt-5')}
+    >
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
@@ -273,9 +347,16 @@ export const StructuredResultView = forwardRef<
       </div>
 
       {/* Metrics */}
-      {data.metrics && data.metrics.length > 0 && (
-        <div className="grid gap-2 sm:grid-cols-3">
-          {data.metrics.map((metric) => (
+      {metrics && metrics.length > 0 && (
+        <div
+          className={cn(
+            'grid gap-2',
+            metrics.length === 1 && 'sm:grid-cols-1',
+            metrics.length === 2 && 'sm:grid-cols-2',
+            metrics.length >= 3 && 'sm:grid-cols-3',
+          )}
+        >
+          {metrics.map((metric) => (
             <MetricCard key={metric.label} metric={metric} />
           ))}
         </div>
@@ -284,8 +365,8 @@ export const StructuredResultView = forwardRef<
       {/* Chart */}
       {data.chart && <BarChart bars={data.chart.bars} unit={data.chart.unit} />}
 
-      {/* Table */}
-      {data.table && (
+      {/* Table — skipped when the single value is already shown as a metric */}
+      {data.table && !derivedMetrics && (
         <ResultTable
           columns={data.table.columns}
           rows={data.table.rows}
@@ -304,8 +385,13 @@ export const StructuredResultView = forwardRef<
           </div>
           <ul className="mt-2 space-y-1.5">
             {data.citations.map((citation) => (
-              <li key={citation.docCode + citation.section} className="text-sm leading-6 text-ink-600">
-                <span className="font-medium text-ink-700">{citation.docCode}</span>{' '}
+              <li
+                key={citation.docCode + citation.section}
+                className="text-sm leading-6 text-ink-600"
+              >
+                <span className="font-medium text-ink-700">
+                  {citation.docCode}
+                </span>{' '}
                 <span className="text-ink-500">{citation.section}</span>,{' '}
                 {citation.quote}
               </li>
@@ -316,12 +402,19 @@ export const StructuredResultView = forwardRef<
 
       {/* Query explanation + freshness + export */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <Collapsible open={explainOpen} onOpenChange={setExplainOpen} className="flex-1">
+        <Collapsible
+          open={explainOpen}
+          onOpenChange={setExplainOpen}
+          className="flex-1"
+        >
           <CollapsibleTrigger className="flex items-center gap-2 rounded-md text-sm font-bold text-teal-600 hover:underline">
             <Database className="size-4" aria-hidden />
             How this was calculated
             <ChevronDown
-              className={cn('size-4 transition-transform', explainOpen && 'rotate-180')}
+              className={cn(
+                'size-4 transition-transform',
+                explainOpen && 'rotate-180',
+              )}
               aria-hidden
             />
           </CollapsibleTrigger>
@@ -330,18 +423,25 @@ export const StructuredResultView = forwardRef<
               <span className="font-bold text-ink-700">Dataset · </span>
               {data.dataset}
             </p>
-            <ExplainList label="Filters" items={data.explanation.filters} mono />
+            <ExplainList
+              label="Filters"
+              items={data.explanation.filters}
+              mono
+            />
             {data.explanation.joins && data.explanation.joins[0] !== '–' && (
               <ExplainList label="Joins" items={data.explanation.joins} mono />
             )}
             {data.explanation.assumptions && (
-              <ExplainList label="Assumptions" items={data.explanation.assumptions} />
+              <ExplainList
+                label="Assumptions"
+                items={data.explanation.assumptions}
+              />
             )}
           </CollapsibleContent>
         </Collapsible>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs text-ink-500">{data.freshness}</p>
         <button
           type="button"
@@ -363,7 +463,9 @@ export const StructuredResultView = forwardRef<
         <section className="space-y-2">
           <div className="flex items-center gap-2">
             <ArrowRight className="size-4 text-teal-600" aria-hidden />
-            <h3 className="text-sm font-bold text-ink-700">You might next ask</h3>
+            <h3 className="text-sm font-bold text-ink-700">
+              You might next ask
+            </h3>
           </div>
           <div className="flex flex-col gap-2">
             {data.followUps.map((prompt) => (
@@ -399,7 +501,9 @@ function ExplainList({
 }) {
   return (
     <div>
-      <p className="text-xs font-bold uppercase tracking-wider text-ink-500">{label}</p>
+      <p className="text-xs font-bold uppercase tracking-wider text-ink-500">
+        {label}
+      </p>
       <ul className="mt-1 space-y-1">
         {items.map((item) => (
           <li

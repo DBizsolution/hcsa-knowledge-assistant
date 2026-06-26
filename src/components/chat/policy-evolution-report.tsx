@@ -21,6 +21,12 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 import { SourceCard } from './source-card'
+import { DocReferenceLink } from './doc-reference-dialog'
+import {
+  buildReferenceIndex,
+  resolveReference,
+  type ReferenceIndex,
+} from '@/lib/rag/doc-references'
 import type { ChatSource } from './types'
 import type {
   PolicyEvolution,
@@ -53,9 +59,22 @@ function SectionLabel({
   )
 }
 
-/** A quiet document reference — plain text, not a candy pill. */
-function DocRef({ code }: { code: string }) {
-  return <span className="font-medium text-ink-600">{code}</span>
+/** A document reference (code, optionally + section) that opens the clause. */
+function DocRef({
+  code,
+  section,
+  index,
+}: {
+  code: string
+  section?: string
+  index: ReferenceIndex
+}) {
+  const label = section ? `${code} ${section}` : code
+  const resolved = resolveReference(index, label)
+  if (!resolved) {
+    return <span className="font-medium text-ink-600">{label}</span>
+  }
+  return <DocReferenceLink label={label} reference={resolved} />
 }
 
 function Timeline({ events }: { events: TimelineEvent[] }) {
@@ -110,7 +129,13 @@ function Timeline({ events }: { events: TimelineEvent[] }) {
   )
 }
 
-function ChangedClauseCard({ clause }: { clause: ChangedClause }) {
+function ChangedClauseCard({
+  clause,
+  index,
+}: {
+  clause: ChangedClause
+  index: ReferenceIndex
+}) {
   const added = clause.kind === 'added'
   return (
     <div className="rounded-lg border border-border bg-card p-3">
@@ -122,11 +147,19 @@ function ChangedClauseCard({ clause }: { clause: ChangedClause }) {
             added ? 'bg-teal-50 text-teal-700' : 'bg-muted text-ink-600',
           )}
         >
-          {added ? <Plus className="size-3" /> : <FilePenLine className="size-3" />}
+          {added ? (
+            <Plus className="size-3" />
+          ) : (
+            <FilePenLine className="size-3" />
+          )}
           {added ? 'New' : 'Updated'}
         </span>
-        <span className="ml-auto text-xs text-ink-500">
-          <DocRef code={clause.docCode} /> {clause.section}
+        <span className="ml-auto text-xs">
+          <DocRef
+            code={clause.docCode}
+            section={clause.section}
+            index={index}
+          />
         </span>
       </div>
       <p className="mt-1.5 text-sm leading-6 text-ink-600">{clause.detail}</p>
@@ -134,12 +167,21 @@ function ChangedClauseCard({ clause }: { clause: ChangedClause }) {
   )
 }
 
-function ContradictionCard({ item }: { item: Contradiction }) {
+function ContradictionCard({
+  item,
+  index,
+}: {
+  item: Contradiction
+  index: ReferenceIndex
+}) {
   const sev = SEVERITY[item.severity]
   return (
     <div className="rounded-lg border border-border bg-card p-3">
       <div className="flex items-center gap-2">
-        <span className={cn('size-2 shrink-0 rounded-full', sev.dot)} aria-hidden />
+        <span
+          className={cn('size-2 shrink-0 rounded-full', sev.dot)}
+          aria-hidden
+        />
         <span className="text-sm font-bold text-ink-700">{item.title}</span>
         <span className="ml-auto text-xs text-ink-500">{sev.label}</span>
       </div>
@@ -150,12 +192,14 @@ function ContradictionCard({ item }: { item: Contradiction }) {
           code={item.requires.code}
           section={item.requires.section}
           quote={item.requires.quote}
+          index={index}
         />
         <ConflictSide
           heading="What the procedure says"
           code={item.conflictsWith.code}
           section={item.conflictsWith.section}
           quote={item.conflictsWith.quote}
+          index={index}
         />
       </div>
 
@@ -167,8 +211,14 @@ function ContradictionCard({ item }: { item: Contradiction }) {
         <p className="text-sm leading-snug text-ink-600">
           <span className="font-bold text-ink-700">Resolved: </span>
           {item.resolution.rule}{' '}
-          <span className="whitespace-nowrap text-ink-500">
-            ({item.resolution.docCode} {item.resolution.section})
+          <span className="whitespace-nowrap">
+            (
+            <DocRef
+              code={item.resolution.docCode}
+              section={item.resolution.section}
+              index={index}
+            />
+            )
           </span>
         </p>
       </div>
@@ -181,11 +231,13 @@ function ConflictSide({
   code,
   section,
   quote,
+  index,
 }: {
   heading: string
   code: string
   section: string
   quote: string
+  index: ReferenceIndex
 }) {
   return (
     <div className="rounded-md border border-border bg-muted p-2.5">
@@ -193,8 +245,8 @@ function ConflictSide({
         {heading}
       </p>
       <p className="mt-1 text-sm leading-6 text-ink-600">{quote}</p>
-      <p className="mt-1.5 text-xs text-ink-500">
-        <DocRef code={code} /> {section}
+      <p className="mt-1.5 text-xs">
+        <DocRef code={code} section={section} index={index} />
       </p>
     </div>
   )
@@ -210,6 +262,8 @@ export const PolicyEvolutionReport = forwardRef<
 >(function PolicyEvolutionReport({ data, evidence, onFollowUp }, ref) {
   const [citationsOpen, setCitationsOpen] = useState(false)
   const [evidenceOpen, setEvidenceOpen] = useState(false)
+  // Backs the inline doc/section references so each opens its clause in a modal.
+  const refIndex = buildReferenceIndex(data)
 
   return (
     <div ref={ref} className="space-y-5 border-t border-border pt-5">
@@ -228,8 +282,8 @@ export const PolicyEvolutionReport = forwardRef<
         <div className="mt-3 space-y-1">
           {data.documents.map((doc) => (
             <p key={doc.code} className="text-xs text-ink-500">
-              <DocRef code={doc.code} /> · {doc.title} · v{doc.version} ·
-              effective {doc.effectiveDate}
+              <DocRef code={doc.code} index={refIndex} /> · {doc.title} · v
+              {doc.version} · effective {doc.effectiveDate}
             </p>
           ))}
         </div>
@@ -248,6 +302,7 @@ export const PolicyEvolutionReport = forwardRef<
               <ChangedClauseCard
                 key={`${clause.docCode}-${clause.section}`}
                 clause={clause}
+                index={refIndex}
               />
             ))}
           </div>
@@ -259,7 +314,7 @@ export const PolicyEvolutionReport = forwardRef<
           </SectionLabel>
           <div className="space-y-2">
             {data.contradictions.map((item) => (
-              <ContradictionCard key={item.id} item={item} />
+              <ContradictionCard key={item.id} item={item} index={refIndex} />
             ))}
           </div>
         </section>
@@ -285,11 +340,12 @@ export const PolicyEvolutionReport = forwardRef<
                     {citation.id}
                   </span>
                   <span className="min-w-0 leading-6 text-ink-600">
-                    <span className="font-medium text-ink-700">
-                      {citation.docCode}
-                    </span>{' '}
-                    <span className="text-ink-500">{citation.section}</span>,{' '}
-                    {citation.quote}
+                    <DocRef
+                      code={citation.docCode}
+                      section={citation.section}
+                      index={refIndex}
+                    />
+                    , {citation.quote}
                   </span>
                 </li>
               ))}
@@ -302,8 +358,8 @@ export const PolicyEvolutionReport = forwardRef<
           <Collapsible open={evidenceOpen} onOpenChange={setEvidenceOpen}>
             <CollapsibleTrigger className="flex items-center gap-2 rounded-md text-sm font-bold text-teal-600 hover:underline">
               <BookOpen className="size-4" aria-hidden />
-              {evidence.length} passage{evidence.length > 1 ? 's' : ''} retrieved
-              live
+              {evidence.length} passage{evidence.length > 1 ? 's' : ''}{' '}
+              retrieved live
               <ChevronDown
                 className={cn(
                   'size-4 transition-transform',

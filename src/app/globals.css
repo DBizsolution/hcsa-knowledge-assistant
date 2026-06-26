@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -191,7 +191,7 @@
    Dark: primary=600 (white text holds), brand-strong=700, brand-text=300,
    accent=translucent primary, accent-foreground=200, ring=400. */
 
-[data-theme="sgds"] {
+[data-theme='sgds'] {
   --primary: #6b4feb;
   --primary-foreground: #ffffff;
   --brand-strong: #523abc;
@@ -200,7 +200,7 @@
   --accent-foreground: #3c2b8a;
   --ring: #6b4feb;
 }
-.dark[data-theme="sgds"] {
+.dark[data-theme='sgds'] {
   --primary: #6b4feb;
   --primary-foreground: #ffffff;
   --brand-strong: #523abc;
@@ -210,7 +210,7 @@
   --ring: #a999f3;
 }
 
-[data-theme="blue"] {
+[data-theme='blue'] {
   --primary: #356dac;
   --primary-foreground: #ffffff;
   --brand-strong: #285483;
@@ -219,7 +219,7 @@
   --accent-foreground: #1e3e62;
   --ring: #356dac;
 }
-.dark[data-theme="blue"] {
+.dark[data-theme='blue'] {
   --primary: #356dac;
   --primary-foreground: #ffffff;
   --brand-strong: #285483;
@@ -229,7 +229,7 @@
   --ring: #73a9e5;
 }
 
-[data-theme="cyan"] {
+[data-theme='cyan'] {
   --primary: #00758d;
   --primary-foreground: #ffffff;
   --brand-strong: #005971;
@@ -238,7 +238,7 @@
   --accent-foreground: #004355;
   --ring: #00758d;
 }
-.dark[data-theme="cyan"] {
+.dark[data-theme='cyan'] {
   --primary: #00758d;
   --primary-foreground: #ffffff;
   --brand-strong: #005971;
@@ -248,7 +248,7 @@
   --ring: #00b3e2;
 }
 
-[data-theme="magenta"] {
+[data-theme='magenta'] {
   --primary: #b82ea0;
   --primary-foreground: #ffffff;
   --brand-strong: #8e247b;
@@ -257,7 +257,7 @@
   --accent-foreground: #6a1b5d;
   --ring: #b82ea0;
 }
-.dark[data-theme="magenta"] {
+.dark[data-theme='magenta'] {
   --primary: #b82ea0;
   --primary-foreground: #ffffff;
   --brand-strong: #8e247b;
@@ -267,7 +267,7 @@
   --ring: #d98bcb;
 }
 
-[data-theme="pink"] {
+[data-theme='pink'] {
   --primary: #c7286a;
   --primary-foreground: #ffffff;
   --brand-strong: #991f52;
@@ -276,7 +276,7 @@
   --accent-foreground: #74173d;
   --ring: #c7286a;
 }
-.dark[data-theme="pink"] {
+.dark[data-theme='pink'] {
   --primary: #c7286a;
   --primary-foreground: #ffffff;
   --brand-strong: #991f52;
@@ -286,7 +286,7 @@
   --ring: #ed84af;
 }
 
-[data-theme="purple"] {
+[data-theme='purple'] {
   --primary: #8055bb;
   --primary-foreground: #ffffff;
   --brand-strong: #634190;
@@ -295,7 +295,7 @@
   --accent-foreground: #49306b;
   --ring: #8055bb;
 }
-.dark[data-theme="purple"] {
+.dark[data-theme='purple'] {
   --primary: #8055bb;
   --primary-foreground: #ffffff;
   --brand-strong: #634190;
@@ -305,7 +305,7 @@
   --ring: #b598dc;
 }
 
-[data-theme="red"] {
+[data-theme='red'] {
   --primary: #cb2b33;
   --primary-foreground: #ffffff;
   --brand-strong: #9e2127;
@@ -314,7 +314,7 @@
   --accent-foreground: #76191e;
   --ring: #cb2b33;
 }
-.dark[data-theme="red"] {
+.dark[data-theme='red'] {
   --primary: #cb2b33;
   --primary-foreground: #ffffff;
   --brand-strong: #9e2127;
@@ -394,8 +394,9 @@
   --color-footer-bg: var(--footer-bg);
   --color-link-blue: var(--link-blue);
 
-  --font-sans: var(--font-sgds), "Inter", system-ui, -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans:
+    var(--font-sgds), 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
   --font-heading: var(--font-sans);
 
   --radius-sm: calc(var(--radius) - 4px); /* 4px → badges/tags */
@@ -444,4 +445,32 @@
     margin-inline: auto;
     padding-inline: 1rem;
   }
+}
+
+/* Sonner toasts — a clean, high-contrast surface (popover bg + dark text) with
+   a semantic accent from the SGDS tokens, instead of the low-contrast tinted
+   rich-colour fill. The accent drives both the leading border and the icon. */
+[data-sonner-toast].cn-toast {
+  --toast-accent: var(--muted-foreground);
+  gap: 0.625rem;
+  border-inline-start-width: 3px;
+  border-inline-start-color: var(--toast-accent);
+  box-shadow:
+    0 8px 24px -8px rgb(0 0 0 / 0.18),
+    0 2px 6px -2px rgb(0 0 0 / 0.08);
+}
+[data-sonner-toast].cn-toast [data-icon] {
+  color: var(--toast-accent);
+}
+[data-sonner-toast].cn-toast[data-type='success'] {
+  --toast-accent: var(--success);
+}
+[data-sonner-toast].cn-toast[data-type='error'] {
+  --toast-accent: var(--destructive);
+}
+[data-sonner-toast].cn-toast[data-type='warning'] {
+  --toast-accent: var(--warning-accent);
+}
+[data-sonner-toast].cn-toast[data-type='info'] {
+  --toast-accent: var(--info);
 }

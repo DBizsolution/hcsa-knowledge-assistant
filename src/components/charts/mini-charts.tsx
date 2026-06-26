@@ -288,7 +288,7 @@ export function MetricRing({
           endAngle={90 - 360}
           innerRadius="68%"
           outerRadius="100%"
-          barSize={12}
+          barSize={9}
         >
           <PolarAngleAxis
             type="number"
@@ -299,7 +299,7 @@ export function MetricRing({
           <RadialBar
             dataKey="value"
             angleAxisId={0}
-            cornerRadius={8}
+            cornerRadius={6}
             fill="var(--color-value)"
             background={{ fill: 'var(--muted)' }}
             isAnimationActive={false}

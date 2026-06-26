@@ -31,6 +31,8 @@ export type Persona = {
   sources: CorpusSource[]
   /** Human label for the scope, shown under the header. */
   scopeLabel: string
+  /** Composer placeholder reflecting the agent's scope. */
+  placeholder: string
   /** Persona-specific starter prompts for the empty state. */
   suggestions: string[]
   /** Appended to the system prompt so answers reflect the persona. */
@@ -49,6 +51,7 @@ export const PERSONAS: Persona[] = [
     blurb: 'Policies, SOPs, reports and correspondence across HCSA',
     sources: ['policy', 'sop', 'email', 'report'],
     scopeLabel: 'All authorised sources',
+    placeholder: 'Ask about policies, SOPs, emails or reports…',
     suggestions: [
       'What are the eligibility criteria for the eco rebate for contractors?',
       "What was HDB's net deficit for the financial year 2022/2023?",
@@ -69,6 +72,7 @@ export const PERSONAS: Persona[] = [
     blurb: 'Tenancy references, contracts and historical correspondence',
     sources: ['policy', 'sop', 'email'],
     scopeLabel: 'PLG policies, tenancy & correspondence',
+    placeholder: 'Ask about tenancy, contracts or PLG correspondence…',
     suggestions: [
       'What obligations do commercial tenants have under the tenancy compliance policy?',
       'Summarise the contractor correspondence on the drainage variation request.',
@@ -89,6 +93,7 @@ export const PERSONAS: Persona[] = [
     blurb: 'HMG manuals, SOPs and housing-management guidance',
     sources: ['sop', 'policy'],
     scopeLabel: 'HMG manuals, SOPs & housing records',
+    placeholder: 'Ask about housing-management manuals, SOPs or procedures…',
     suggestions: [
       'Explain the site-safety requirements in the Urban Development SOP.',
       'Which inspections are required before a project can move to the next phase?',
@@ -108,6 +113,7 @@ export const PERSONAS: Persona[] = [
     blurb: 'Policies, legislation, circulars and case records',
     sources: ['policy', 'sop', 'email'],
     scopeLabel: 'Policies, legislation & circulars',
+    placeholder: 'Ask about corporate policy, legislation or circulars…',
     suggestions: [
       'How has the Sustainable Urban Design policy evolved, and where does it conflict with the SOP?',
       'What sustainability standards does HDB require for green building projects?',
@@ -128,6 +134,7 @@ export const PERSONAS: Persona[] = [
     blurb: 'Legal provisions, precedent and drafting, review-first',
     sources: ['policy', 'email'],
     scopeLabel: 'Legal advice, precedent & provisions',
+    placeholder: 'Ask about legal provisions, precedent or risk…',
     suggestions: [
       'Summarise the EcoRebate rejection and the contractor’s request for reconsideration.',
       'Where do the policy and SOP give inconsistent legal positions, and which governs?',
@@ -148,6 +155,7 @@ export const PERSONAS: Persona[] = [
     blurb: 'Audit findings, trends and structured project datasets',
     sources: ['report', 'sop'],
     scopeLabel: 'Audit reports, findings & datasets',
+    placeholder: 'Ask about audit findings, trends or project data…',
     suggestions: [
       'How many permits expired in 2024 across all contractors?',
       'Which contractors have the most failed inspections this year?',

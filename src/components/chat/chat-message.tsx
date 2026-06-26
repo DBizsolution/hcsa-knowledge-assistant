@@ -15,6 +15,8 @@ import { SourceCard } from './source-card'
 import { PolicyEvolutionReport } from './policy-evolution-report'
 import { StructuredResultView } from './structured-result'
 import { MessageFeedback } from './message-feedback'
+import { DocReferenceLink } from './doc-reference-dialog'
+import { buildReferenceIndex, resolveReference } from '@/lib/rag/doc-references'
 import { extractMessageMeta } from './types'
 
 /** Collect the source numbers referenced by [n] / [n, m] markers in the answer. */
@@ -97,6 +99,20 @@ export function ChatMessage({
   }))
   const displayText = remapCitations(text, renumber)
 
+  // When the answer carries a policy-evolution report, its curated documents
+  // back the inline doc/section references (POL-UD-002, §10.1) so they link to
+  // the actual clause.
+  const referenceIndex = policyEvolution
+    ? buildReferenceIndex(policyEvolution.evolution)
+    : null
+  const renderReference = referenceIndex
+    ? (raw: string, key: string) => {
+        const resolved = resolveReference(referenceIndex, raw)
+        if (!resolved) return null
+        return <DocReferenceLink key={key} label={raw} reference={resolved} />
+      }
+    : undefined
+
   function handleCitation(ref: number) {
     setSourcesOpen(true)
     setHighlighted(ref)
@@ -106,12 +122,15 @@ export function ChatMessage({
         block: 'center',
       })
     })
-    window.setTimeout(() => setHighlighted((cur) => (cur === ref ? null : cur)), 2200)
+    window.setTimeout(
+      () => setHighlighted((cur) => (cur === ref ? null : cur)),
+      2200,
+    )
   }
 
   return (
     <div data-chat-role="assistant" className="flex gap-3">
-      <BrandMark className="mt-0.5 size-8 shrink-0 rounded-lg" />
+      <BrandMark className="-mt-0.5 size-8 shrink-0 rounded-lg" />
       <div className="min-w-0 flex-1 space-y-3">
         {(searching || queries.length > 0) && (
           <div
@@ -119,7 +138,10 @@ export function ChatMessage({
             aria-live="polite"
           >
             {searching ? (
-              <Loader2 className="size-4 animate-spin text-teal-600" aria-hidden />
+              <Loader2
+                className="size-4 animate-spin text-teal-600"
+                aria-hidden
+              />
             ) : (
               <Search className="size-4 text-teal-600" aria-hidden />
             )}
@@ -142,7 +164,10 @@ export function ChatMessage({
             className="flex items-center gap-2 text-sm text-ink-500"
             aria-live="polite"
           >
-            <Loader2 className="size-4 animate-spin text-teal-600" aria-hidden />
+            <Loader2
+              className="size-4 animate-spin text-teal-600"
+              aria-hidden
+            />
             <span>Analysing policy evolution and cross-document conflicts</span>
           </div>
         )}
@@ -152,8 +177,13 @@ export function ChatMessage({
             className="flex items-center gap-2 text-sm text-ink-500"
             aria-live="polite"
           >
-            <Loader2 className="size-4 animate-spin text-link-blue" aria-hidden />
-            <span>Querying the project datasets (Permits, Inspections, Projects)</span>
+            <Loader2
+              className="size-4 animate-spin text-link-blue"
+              aria-hidden
+            />
+            <span>
+              Querying the project datasets (Permits, Inspections, Projects)
+            </span>
           </div>
         )}
 
@@ -172,7 +202,11 @@ export function ChatMessage({
         )}
 
         {displayText && (
-          <Markdown content={displayText} onCitation={handleCitation} />
+          <Markdown
+            content={displayText}
+            onCitation={handleCitation}
+            renderReference={renderReference}
+          />
         )}
 
         {policyEvolution && (
@@ -191,7 +225,8 @@ export function ChatMessage({
           <Collapsible open={sourcesOpen} onOpenChange={setSourcesOpen}>
             <CollapsibleTrigger className="flex items-center gap-2 rounded-md text-sm font-bold text-teal-600 hover:underline">
               <BookOpen className="size-4" aria-hidden />
-              {displaySources.length} source{displaySources.length > 1 ? 's' : ''}
+              {displaySources.length} source
+              {displaySources.length > 1 ? 's' : ''}
               <ChevronDown
                 className={cn(
                   'size-4 transition-transform',

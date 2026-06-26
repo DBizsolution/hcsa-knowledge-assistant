@@ -8,6 +8,7 @@ import { ShieldCheck, RotateCw, ArrowLeft, ArrowUpRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { BrandMark } from '@/components/shell/brand'
+import { ErrorBoundary } from '@/components/shell/error-boundary'
 import { usePersona } from '@/lib/use-persona-store'
 import { useChatSessionStore } from '@/lib/use-chat-session-store'
 import { personaById, type PersonaId } from '@/lib/personas'
@@ -111,7 +112,10 @@ export function ChatView() {
     setSwitchMarkers((markers) => {
       const last = markers[markers.length - 1]
       if (last && last.afterMessageId === afterMessageId) {
-        return [...markers.slice(0, -1), { id, personaId: persona, afterMessageId }]
+        return [
+          ...markers.slice(0, -1),
+          { id, personaId: persona, afterMessageId },
+        ]
       }
       return [...markers, { id, personaId: persona, afterMessageId }]
     })
@@ -129,6 +133,18 @@ export function ChatView() {
     }
     prevCount.current = messages.length
   }, [messages.length])
+
+  // On an agent switch, reveal the "Switched to…" divider and its scope hints
+  // by scrolling smoothly to the bottom (a switch adds no message, so the
+  // per-turn scroll above doesn't fire).
+  useEffect(() => {
+    if (switchMarkers.length === 0) return
+    const container = scrollRef.current
+    if (!container) return
+    requestAnimationFrame(() => {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
+    })
+  }, [switchMarkers])
 
   function submit(text: string) {
     const trimmed = text.trim()
@@ -159,32 +175,42 @@ export function ChatView() {
                 const markers = switchMarkers.filter(
                   (marker) => marker.afterMessageId === message.id,
                 )
+                const streaming =
+                  busy &&
+                  index === messages.length - 1 &&
+                  message.role === 'assistant'
                 return (
                   <Fragment key={message.id}>
-                    <ChatMessage
-                      message={message}
-                      isStreaming={
-                        busy &&
-                        index === messages.length - 1 &&
-                        message.role === 'assistant'
-                      }
-                      onFollowUp={submit}
-                    />
+                    {/* A single bad answer can't take down the transcript or
+                        composer — it degrades to a retryable card in place. */}
+                    <ErrorBoundary
+                      resetKeys={[message.id, streaming]}
+                      fallback={(reset) => (
+                        <ChatMessageFallback onRetry={reset} />
+                      )}
+                    >
+                      <ChatMessage
+                        message={message}
+                        isStreaming={streaming}
+                        onFollowUp={submit}
+                      />
+                    </ErrorBoundary>
                     {markers.map((marker) => (
                       <AgentSwitchDivider
                         key={marker.id}
                         personaId={marker.personaId}
                         showNudge={
                           marker.id === lastMarkerId &&
-                          marker.afterMessageId === lastMessageId &&
-                          !dismissedNudges.has(marker.id)
+                          marker.afterMessageId === lastMessageId
                         }
+                        decided={dismissedNudges.has(marker.id)}
                         onNewChat={startNewChat}
-                        onDismiss={() =>
+                        onStay={() =>
                           setDismissedNudges((prev) =>
                             new Set(prev).add(marker.id),
                           )
                         }
+                        onPickPrompt={submit}
                       />
                     ))}
                   </Fragment>
@@ -223,12 +249,40 @@ export function ChatView() {
             onSubmit={() => submit(input)}
             onStop={stop}
             busy={busy}
+            persona={persona}
+            onPersonaChange={setPersona}
           />
           <p className="mt-2 flex items-center justify-center gap-1.5 text-xs text-ink-500">
             <ShieldCheck className="size-3.5" />
             Grounded in HCSA sources. Verify critical decisions against the
             original document.
           </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ChatMessageFallback({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div data-chat-role="assistant" className="flex gap-3">
+      <BrandMark className="-mt-0.5 size-8 shrink-0 rounded-lg" />
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3">
+          <p className="text-sm text-ink-600">
+            This response couldn’t be displayed. Your other messages are
+            unaffected.
+          </p>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            className="ml-auto gap-1.5"
+            onClick={onRetry}
+          >
+            <RotateCw className="size-3.5" />
+            Retry
+          </Button>
         </div>
       </div>
     </div>
@@ -418,7 +472,10 @@ function PromptList({
             <span className="flex-1 text-base leading-relaxed text-ink-700">
               {prompt}
             </span>
-            <ArrowUpRight className="size-4 shrink-0 text-ink-500/60 transition-colors group-hover:text-ink-700" aria-hidden />
+            <ArrowUpRight
+              className="size-4 shrink-0 text-ink-500/60 transition-colors group-hover:text-ink-700"
+              aria-hidden
+            />
           </button>
         ))}
       </div>
