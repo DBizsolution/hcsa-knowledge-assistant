@@ -1,7 +1,8 @@
 'use client'
 
 import { forwardRef, useState } from 'react'
-import { FileText, Mail, Scale, FileBarChart, ChevronDown } from 'lucide-react'
+import { FileText, Mail, Scale, FileBarChart, ChevronDown, Maximize2 } from 'lucide-react'
+import { SourceDocumentDialog } from './source-document-dialog'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import type { ChatSource } from './types'
@@ -68,6 +69,18 @@ export const SourceCard = forwardRef<
           <p className="mt-1.5 text-xs text-ink-500">
             {source.sourcePath} · passage {source.chunkIndex + 1}
           </p>
+          <SourceDocumentDialog
+            source={source}
+            trigger={
+              <button
+                type="button"
+                className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-teal-600 transition-colors hover:text-teal-700"
+              >
+                <Maximize2 className="size-3.5" aria-hidden />
+                Open full source
+              </button>
+            }
+          />
         </div>
       )}
     </div>
