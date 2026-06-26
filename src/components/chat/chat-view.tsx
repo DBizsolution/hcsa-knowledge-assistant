@@ -284,7 +284,7 @@ function TopicGrid({ onSelect }: { onSelect: (category: Category) => void }) {
             >
               {category.category}
             </span>
-            <span className="mt-0.5 truncate text-sm text-ink-500">
+            <span className="mt-0.5 line-clamp-2 text-sm text-ink-500">
               {category.blurb}
             </span>
           </span>
