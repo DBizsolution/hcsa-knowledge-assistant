@@ -19,7 +19,7 @@ import {
 } from '@/data/source-documents'
 import type { ChatSource } from './types'
 
-function Block({ block }: { block: SourceDocBlock }) {
+function Block({ block }: { block: SourceDocBlock }): ReactElement {
   switch (block.type) {
     case 'heading':
       return (

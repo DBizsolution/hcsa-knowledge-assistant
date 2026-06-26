@@ -139,6 +139,8 @@ export function ChatView() {
   }
 
   const isEmpty = messages.length === 0
+  const lastMarkerId = switchMarkers[switchMarkers.length - 1]?.id
+  const lastMessageId = messages[messages.length - 1]?.id
 
   return (
     <div className="flex h-[calc(100dvh-4rem)] flex-col">
@@ -157,9 +159,6 @@ export function ChatView() {
                 const markers = switchMarkers.filter(
                   (marker) => marker.afterMessageId === message.id,
                 )
-                const lastMarkerId =
-                  switchMarkers[switchMarkers.length - 1]?.id
-                const lastMessageId = messages[messages.length - 1]?.id
                 return (
                   <Fragment key={message.id}>
                     <ChatMessage
